@@ -242,7 +242,7 @@ function Templates() {
       ? await supabase.from("email_templates").update(payload).eq("id", editing.id)
       : await supabase.from("email_templates").insert(payload);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     await supabase.rpc("log_admin_activity", { _action: editing.id ? "template.updated" : "template.created", _target_type: "email_template", _target_id: editing.id ?? "", _details: { name: editing.name } });
     toast.success("Template saved");
     setEditing(null);
@@ -251,7 +251,7 @@ function Templates() {
 
   const remove = async (id: string) => {
     const { error } = await supabase.from("email_templates").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     void qc.invalidateQueries({ queryKey: ["admin", "templates"] });
   };
 

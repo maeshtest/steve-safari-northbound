@@ -272,6 +272,6 @@ export const initiatePayment = createServerFn({ method: "POST" })
         result_desc: "M-Pesa prompt sent",
       })
       .eq("id", payment.id);
-    if (app.payment_status !== "paid") await db.from("applications").update({ payment_status: "pending" }).eq("id", app.id);
+    await db.from("applications").update({ payment_status: "pending" }).eq("id", app.id);
     return { ok: true as const };
   });

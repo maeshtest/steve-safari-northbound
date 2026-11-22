@@ -17,21 +17,21 @@ export function ChangePasswordForm({ onDone }: { onDone: () => void }) {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (next.length < 12) return toast.error("Use at least 12 characters.");
-    if (next !== confirm) return toast.error("New passwords do not match.");
-    if (next === current) return toast.error("Choose a password different from your current one.");
+    if (next.length < 12) { toast.error("Use at least 12 characters."); return; }
+    if (next !== confirm) { toast.error("New passwords do not match."); return; }
+    if (next === current) { toast.error("Choose a password different from your current one."); return; }
     setBusy(true);
     const { data: u } = await supabase.auth.getUser();
     const email = u.user?.email ?? "";
     const { error: verifyErr } = await supabase.auth.signInWithPassword({ email, password: current });
     if (verifyErr) {
       setBusy(false);
-      return toast.error("Your current password is incorrect.");
+      { toast.error("Your current password is incorrect."); return; }
     }
     const { error } = await supabase.auth.updateUser({ password: next, current_password: current } as never);
     if (error) {
       setBusy(false);
-      return toast.error(error.message);
+      { toast.error(error.message); return; }
     }
     await complete();
     setBusy(false);

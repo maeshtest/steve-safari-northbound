@@ -60,7 +60,7 @@ function ApplicationDetail() {
 
   const openDoc = async (path: string) => {
     const { data, error } = await supabase.storage.from("application-documents").createSignedUrl(path, 120);
-    if (error || !data) return toast.error("Could not open the document.");
+    if (error || !data) { toast.error("Could not open the document."); return; }
     window.open(data.signedUrl, "_blank", "noopener");
     await supabase.rpc("log_admin_activity", { _action: "document.viewed", _target_type: "application", _target_id: id, _details: { path } });
   };
@@ -70,7 +70,7 @@ function ApplicationDetail() {
     setBusy("note");
     const { error } = await supabase.from("application_notes").insert({ application_id: id, author_id: me.userId, author_email: me.email, body: note.trim() });
     setBusy(null);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setNote("");
     void refresh();
   };

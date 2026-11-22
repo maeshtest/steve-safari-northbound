@@ -37,7 +37,7 @@ export const Route = createFileRoute("/api/public/payhero/callback")({
             } else {
               const amount = typeof response["Amount"] === "number" ? (response["Amount"] as number) : undefined;
               const receipt = typeof response["MpesaReceiptNumber"] === "string" ? (response["MpesaReceiptNumber"] as string) : undefined;
-              const r = await verifyPayment(payment.id, { amount, receipt });
+              const r = await verifyPayment(payment.id, { ...(amount !== undefined ? { amount } : {}), ...(receipt ? { receipt } : {}) });
               verified = r.status === "success";
               result = `Verified with PayHero: ${r.status}`;
             }
