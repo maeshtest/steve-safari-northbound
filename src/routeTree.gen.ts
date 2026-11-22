@@ -10,33 +10,315 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AlumniRouteImport } from './routes/alumni'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as FlightWaitingListRouteImport } from './routes/flight-waiting-list'
+import { Route as MembersRouteImport } from './routes/members'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SponsorshipRouteImport } from './routes/sponsorship'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TestimonialsRouteImport } from './routes/testimonials'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as ConfirmationReferenceRouteImport } from './routes/confirmation.$reference'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated/admin/emails'
+import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
+import { Route as AuthenticatedAdminApplicationsIndexRouteImport } from './routes/_authenticated/admin/applications.index'
+import { Route as AuthenticatedAdminApplicationsIdRouteImport } from './routes/_authenticated/admin/applications.$id'
+import { Route as ApiPublicPayheroCallbackRouteImport } from './routes/api/public/payhero/callback'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlumniRoute = AlumniRouteImport.update({
+  id: '/alumni',
+  path: '/alumni',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FlightWaitingListRoute = FlightWaitingListRouteImport.update({
+  id: '/flight-waiting-list',
+  path: '/flight-waiting-list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MembersRoute = MembersRouteImport.update({
+  id: '/members',
+  path: '/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SponsorshipRoute = SponsorshipRouteImport.update({
+  id: '/sponsorship',
+  path: '/sponsorship',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestimonialsRoute = TestimonialsRouteImport.update({
+  id: '/testimonials',
+  path: '/testimonials',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ConfirmationReferenceRoute = ConfirmationReferenceRouteImport.update({
+  id: '/confirmation/$reference',
+  path: '/confirmation/$reference',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminEmailsRoute =
+  AuthenticatedAdminEmailsRouteImport.update({
+    id: '/emails',
+    path: '/emails',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminPaymentsRoute =
+  AuthenticatedAdminPaymentsRouteImport.update({
+    id: '/payments',
+    path: '/payments',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminApplicationsIndexRoute =
+  AuthenticatedAdminApplicationsIndexRouteImport.update({
+    id: '/applications/',
+    path: '/applications/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminApplicationsIdRoute =
+  AuthenticatedAdminApplicationsIdRouteImport.update({
+    id: '/applications/$id',
+    path: '/applications/$id',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const ApiPublicPayheroCallbackRoute =
+  ApiPublicPayheroCallbackRouteImport.update({
+    id: '/api/public/payhero/callback',
+    path: '/api/public/payhero/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/alumni': typeof AlumniRoute
+  '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/flight-waiting-list': typeof FlightWaitingListRoute
+  '/members': typeof MembersRoute
+  '/privacy': typeof PrivacyRoute
+  '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/sponsorship': typeof SponsorshipRoute
+  '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
+  '/testimonials': typeof TestimonialsRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/confirmation/$reference': typeof ConfirmationReferenceRoute
+  '/admin/emails': typeof AuthenticatedAdminEmailsRoute
+  '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/applications/$id': typeof AuthenticatedAdminApplicationsIdRoute
+  '/api/public/payhero/callback': typeof ApiPublicPayheroCallbackRoute
+  '/admin/applications/': typeof AuthenticatedAdminApplicationsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/alumni': typeof AlumniRoute
+  '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/flight-waiting-list': typeof FlightWaitingListRoute
+  '/members': typeof MembersRoute
+  '/privacy': typeof PrivacyRoute
+  '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/sponsorship': typeof SponsorshipRoute
+  '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
+  '/testimonials': typeof TestimonialsRoute
+  '/confirmation/$reference': typeof ConfirmationReferenceRoute
+  '/admin/emails': typeof AuthenticatedAdminEmailsRoute
+  '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/applications/$id': typeof AuthenticatedAdminApplicationsIdRoute
+  '/api/public/payhero/callback': typeof ApiPublicPayheroCallbackRoute
+  '/admin/applications': typeof AuthenticatedAdminApplicationsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
+  '/alumni': typeof AlumniRoute
+  '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/flight-waiting-list': typeof FlightWaitingListRoute
+  '/members': typeof MembersRoute
+  '/privacy': typeof PrivacyRoute
+  '/register': typeof RegisterRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/sponsorship': typeof SponsorshipRoute
+  '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
+  '/testimonials': typeof TestimonialsRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/confirmation/$reference': typeof ConfirmationReferenceRoute
+  '/_authenticated/admin/emails': typeof AuthenticatedAdminEmailsRoute
+  '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/applications/$id': typeof AuthenticatedAdminApplicationsIdRoute
+  '/api/public/payhero/callback': typeof ApiPublicPayheroCallbackRoute
+  '/_authenticated/admin/applications/': typeof AuthenticatedAdminApplicationsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/alumni'
+    | '/auth'
+    | '/contact'
+    | '/flight-waiting-list'
+    | '/members'
+    | '/privacy'
+    | '/register'
+    | '/reset-password'
+    | '/sponsorship'
+    | '/status'
+    | '/terms'
+    | '/testimonials'
+    | '/admin'
+    | '/confirmation/$reference'
+    | '/admin/emails'
+    | '/admin/payments'
+    | '/admin/'
+    | '/admin/applications/$id'
+    | '/api/public/payhero/callback'
+    | '/admin/applications/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/alumni'
+    | '/auth'
+    | '/contact'
+    | '/flight-waiting-list'
+    | '/members'
+    | '/privacy'
+    | '/register'
+    | '/reset-password'
+    | '/sponsorship'
+    | '/status'
+    | '/terms'
+    | '/testimonials'
+    | '/confirmation/$reference'
+    | '/admin/emails'
+    | '/admin/payments'
+    | '/admin'
+    | '/admin/applications/$id'
+    | '/api/public/payhero/callback'
+    | '/admin/applications'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/about'
+    | '/alumni'
+    | '/auth'
+    | '/contact'
+    | '/flight-waiting-list'
+    | '/members'
+    | '/privacy'
+    | '/register'
+    | '/reset-password'
+    | '/sponsorship'
+    | '/status'
+    | '/terms'
+    | '/testimonials'
+    | '/_authenticated/admin'
+    | '/confirmation/$reference'
+    | '/_authenticated/admin/emails'
+    | '/_authenticated/admin/payments'
+    | '/_authenticated/admin/'
+    | '/_authenticated/admin/applications/$id'
+    | '/api/public/payhero/callback'
+    | '/_authenticated/admin/applications/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
+  AlumniRoute: typeof AlumniRoute
+  AuthRoute: typeof AuthRoute
+  ContactRoute: typeof ContactRoute
+  FlightWaitingListRoute: typeof FlightWaitingListRoute
+  MembersRoute: typeof MembersRoute
+  PrivacyRoute: typeof PrivacyRoute
+  RegisterRoute: typeof RegisterRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SponsorshipRoute: typeof SponsorshipRoute
+  StatusRoute: typeof StatusRoute
+  TermsRoute: typeof TermsRoute
+  TestimonialsRoute: typeof TestimonialsRoute
+  ConfirmationReferenceRoute: typeof ConfirmationReferenceRoute
+  ApiPublicPayheroCallbackRoute: typeof ApiPublicPayheroCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +330,216 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alumni': {
+      id: '/alumni'
+      path: '/alumni'
+      fullPath: '/alumni'
+      preLoaderRoute: typeof AlumniRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/flight-waiting-list': {
+      id: '/flight-waiting-list'
+      path: '/flight-waiting-list'
+      fullPath: '/flight-waiting-list'
+      preLoaderRoute: typeof FlightWaitingListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/members': {
+      id: '/members'
+      path: '/members'
+      fullPath: '/members'
+      preLoaderRoute: typeof MembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sponsorship': {
+      id: '/sponsorship'
+      path: '/sponsorship'
+      fullPath: '/sponsorship'
+      preLoaderRoute: typeof SponsorshipRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/testimonials': {
+      id: '/testimonials'
+      path: '/testimonials'
+      fullPath: '/testimonials'
+      preLoaderRoute: typeof TestimonialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/confirmation/$reference': {
+      id: '/confirmation/$reference'
+      path: '/confirmation/$reference'
+      fullPath: '/confirmation/$reference'
+      preLoaderRoute: typeof ConfirmationReferenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/emails': {
+      id: '/_authenticated/admin/emails'
+      path: '/emails'
+      fullPath: '/admin/emails'
+      preLoaderRoute: typeof AuthenticatedAdminEmailsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/payments': {
+      id: '/_authenticated/admin/payments'
+      path: '/payments'
+      fullPath: '/admin/payments'
+      preLoaderRoute: typeof AuthenticatedAdminPaymentsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/applications/': {
+      id: '/_authenticated/admin/applications/'
+      path: '/applications'
+      fullPath: '/admin/applications/'
+      preLoaderRoute: typeof AuthenticatedAdminApplicationsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/applications/$id': {
+      id: '/_authenticated/admin/applications/$id'
+      path: '/applications/$id'
+      fullPath: '/admin/applications/$id'
+      preLoaderRoute: typeof AuthenticatedAdminApplicationsIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/api/public/payhero/callback': {
+      id: '/api/public/payhero/callback'
+      path: '/api/public/payhero/callback'
+      fullPath: '/api/public/payhero/callback'
+      preLoaderRoute: typeof ApiPublicPayheroCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
+  AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminApplicationsIdRoute: typeof AuthenticatedAdminApplicationsIdRoute
+  AuthenticatedAdminApplicationsIndexRoute: typeof AuthenticatedAdminApplicationsIndexRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
+    AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
+    AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminApplicationsIdRoute:
+      AuthenticatedAdminApplicationsIdRoute,
+    AuthenticatedAdminApplicationsIndexRoute:
+      AuthenticatedAdminApplicationsIndexRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
+  AlumniRoute: AlumniRoute,
+  AuthRoute: AuthRoute,
+  ContactRoute: ContactRoute,
+  FlightWaitingListRoute: FlightWaitingListRoute,
+  MembersRoute: MembersRoute,
+  PrivacyRoute: PrivacyRoute,
+  RegisterRoute: RegisterRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SponsorshipRoute: SponsorshipRoute,
+  StatusRoute: StatusRoute,
+  TermsRoute: TermsRoute,
+  TestimonialsRoute: TestimonialsRoute,
+  ConfirmationReferenceRoute: ConfirmationReferenceRoute,
+  ApiPublicPayheroCallbackRoute: ApiPublicPayheroCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
