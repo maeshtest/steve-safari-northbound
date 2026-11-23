@@ -42,6 +42,8 @@ export function SiteFooter() {
             <li><Link to="/register" className="hover:text-forest-foreground">Register</Link></li>
             <li><Link to="/status" className="hover:text-forest-foreground">Check status</Link></li>
             <li><Link to="/testimonials" className="hover:text-forest-foreground">Testimonials</Link></li>
+            <li><Link to="/team" className="hover:text-forest-foreground">Our team</Link></li>
+            <li><Link to="/support" className="hover:text-forest-foreground">Help &amp; support</Link></li>
           </ul>
         </div>
         <div>

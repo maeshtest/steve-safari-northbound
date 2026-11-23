@@ -133,6 +133,7 @@ export type Database = {
           id: string
           info_requested: string | null
           info_requested_at: string | null
+          is_demo: boolean
           national_id: string
           paid_at: string | null
           payment_status: Database["public"]["Enums"]["payment_state"]
@@ -153,6 +154,7 @@ export type Database = {
           id?: string
           info_requested?: string | null
           info_requested_at?: string | null
+          is_demo?: boolean
           national_id: string
           paid_at?: string | null
           payment_status?: Database["public"]["Enums"]["payment_state"]
@@ -173,6 +175,7 @@ export type Database = {
           id?: string
           info_requested?: string | null
           info_requested_at?: string | null
+          is_demo?: boolean
           national_id?: string
           paid_at?: string | null
           payment_status?: Database["public"]["Enums"]["payment_state"]
@@ -183,6 +186,39 @@ export type Database = {
           terms_accepted_at?: string
           terms_version?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      bridge_keys: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          key_hash: string
+          key_prefix: string
+          label: string
+          last_used_at: string | null
+          revoked_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          key_hash: string
+          key_prefix: string
+          label: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          label?: string
+          last_used_at?: string | null
+          revoked_at?: string | null
         }
         Relationships: []
       }
@@ -530,6 +566,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      team_members: {
+        Row: {
+          bio: string
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          is_visible: boolean
+          photo_url: string | null
+          role_title: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          bio?: string
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          is_visible?: boolean
+          photo_url?: string | null
+          role_title?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          bio?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_visible?: boolean
+          photo_url?: string | null
+          role_title?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       terms_acceptances: {
         Row: {

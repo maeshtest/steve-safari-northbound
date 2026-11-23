@@ -15,6 +15,13 @@
       "when": 1795359437974,
       "tag": "0001_storage_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795410260364,
+      "tag": "0002_team_demo_bridge",
+      "breakpoints": true
     }
   ]
 }

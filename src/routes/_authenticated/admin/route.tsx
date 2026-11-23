@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import {
-  CreditCard, FileStack, Inbox, LayoutDashboard, Loader2, LogOut, Mail, Menu, Settings, ShieldCheck, X,
+  CreditCard, FileStack, Inbox, LayoutDashboard, Loader2, LogOut, Mail, Menu, Settings, ShieldCheck, Users, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogoMark } from "@/components/site/Logo";
@@ -26,7 +26,9 @@ const NAV: NavItem[] = [
   { to: "/admin/payments", label: "Payments", icon: CreditCard, level: "admin" },
   { to: "/admin/emails", label: "Emails", icon: Mail, level: "admin" },
   { to: "/admin/messages", label: "Messages", icon: Inbox, level: "admin" },
-  { to: "/admin/settings", label: "Integrations", icon: Settings, level: "admin" },
+  { to: "/admin/team", label: "Team", icon: Users, level: "staff" },
+  { to: "/admin/administrators", label: "Administrators", icon: ShieldCheck, level: "super" },
+  { to: "/admin/settings", label: "Settings", icon: Settings, level: "admin" },
 ];
 
 function AdminLayout() {

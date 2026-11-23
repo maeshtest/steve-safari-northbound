@@ -22,13 +22,19 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SponsorshipRouteImport } from './routes/sponsorship'
 import { Route as StatusRouteImport } from './routes/status'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as TeamRouteImport } from './routes/team'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TestimonialsRouteImport } from './routes/testimonials'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as ConfirmationReferenceRouteImport } from './routes/confirmation.$reference'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminAdministratorsRouteImport } from './routes/_authenticated/admin/administrators'
 import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated/admin/emails'
+import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin/messages'
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
+import { Route as AuthenticatedAdminTeamRouteImport } from './routes/_authenticated/admin/team'
+import { Route as ApiPublicBridgeRouteImport } from './routes/api/public/bridge'
 import { Route as AuthenticatedAdminApplicationsIndexRouteImport } from './routes/_authenticated/admin/applications.index'
 import { Route as AuthenticatedAdminApplicationsIdRouteImport } from './routes/_authenticated/admin/applications.$id'
 import { Route as ApiPublicPayheroCallbackRouteImport } from './routes/api/public/payhero/callback'
@@ -97,6 +103,16 @@ const StatusRoute = StatusRouteImport.update({
   path: '/status',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamRoute = TeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -122,10 +138,22 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminAdministratorsRoute =
+  AuthenticatedAdminAdministratorsRouteImport.update({
+    id: '/administrators',
+    path: '/administrators',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminEmailsRoute =
   AuthenticatedAdminEmailsRouteImport.update({
     id: '/emails',
     path: '/emails',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminMessagesRoute =
+  AuthenticatedAdminMessagesRouteImport.update({
+    id: '/messages',
+    path: '/messages',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminPaymentsRoute =
@@ -134,6 +162,16 @@ const AuthenticatedAdminPaymentsRoute =
     path: '/payments',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminTeamRoute = AuthenticatedAdminTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const ApiPublicBridgeRoute = ApiPublicBridgeRouteImport.update({
+  id: '/api/public/bridge',
+  path: '/api/public/bridge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminApplicationsIndexRoute =
   AuthenticatedAdminApplicationsIndexRouteImport.update({
     id: '/applications/',
@@ -166,12 +204,18 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sponsorship': typeof SponsorshipRoute
   '/status': typeof StatusRoute
+  '/support': typeof SupportRoute
+  '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/testimonials': typeof TestimonialsRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/confirmation/$reference': typeof ConfirmationReferenceRoute
+  '/admin/administrators': typeof AuthenticatedAdminAdministratorsRoute
   '/admin/emails': typeof AuthenticatedAdminEmailsRoute
+  '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/admin/team': typeof AuthenticatedAdminTeamRoute
+  '/api/public/bridge': typeof ApiPublicBridgeRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/applications/$id': typeof AuthenticatedAdminApplicationsIdRoute
   '/api/public/payhero/callback': typeof ApiPublicPayheroCallbackRoute
@@ -190,11 +234,17 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sponsorship': typeof SponsorshipRoute
   '/status': typeof StatusRoute
+  '/support': typeof SupportRoute
+  '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/testimonials': typeof TestimonialsRoute
   '/confirmation/$reference': typeof ConfirmationReferenceRoute
+  '/admin/administrators': typeof AuthenticatedAdminAdministratorsRoute
   '/admin/emails': typeof AuthenticatedAdminEmailsRoute
+  '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/admin/team': typeof AuthenticatedAdminTeamRoute
+  '/api/public/bridge': typeof ApiPublicBridgeRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/applications/$id': typeof AuthenticatedAdminApplicationsIdRoute
   '/api/public/payhero/callback': typeof ApiPublicPayheroCallbackRoute
@@ -215,12 +265,18 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sponsorship': typeof SponsorshipRoute
   '/status': typeof StatusRoute
+  '/support': typeof SupportRoute
+  '/team': typeof TeamRoute
   '/terms': typeof TermsRoute
   '/testimonials': typeof TestimonialsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/confirmation/$reference': typeof ConfirmationReferenceRoute
+  '/_authenticated/admin/administrators': typeof AuthenticatedAdminAdministratorsRoute
   '/_authenticated/admin/emails': typeof AuthenticatedAdminEmailsRoute
+  '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/_authenticated/admin/team': typeof AuthenticatedAdminTeamRoute
+  '/api/public/bridge': typeof ApiPublicBridgeRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/applications/$id': typeof AuthenticatedAdminApplicationsIdRoute
   '/api/public/payhero/callback': typeof ApiPublicPayheroCallbackRoute
@@ -241,12 +297,18 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sponsorship'
     | '/status'
+    | '/support'
+    | '/team'
     | '/terms'
     | '/testimonials'
     | '/admin'
     | '/confirmation/$reference'
+    | '/admin/administrators'
     | '/admin/emails'
+    | '/admin/messages'
     | '/admin/payments'
+    | '/admin/team'
+    | '/api/public/bridge'
     | '/admin/'
     | '/admin/applications/$id'
     | '/api/public/payhero/callback'
@@ -265,11 +327,17 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sponsorship'
     | '/status'
+    | '/support'
+    | '/team'
     | '/terms'
     | '/testimonials'
     | '/confirmation/$reference'
+    | '/admin/administrators'
     | '/admin/emails'
+    | '/admin/messages'
     | '/admin/payments'
+    | '/admin/team'
+    | '/api/public/bridge'
     | '/admin'
     | '/admin/applications/$id'
     | '/api/public/payhero/callback'
@@ -289,12 +357,18 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sponsorship'
     | '/status'
+    | '/support'
+    | '/team'
     | '/terms'
     | '/testimonials'
     | '/_authenticated/admin'
     | '/confirmation/$reference'
+    | '/_authenticated/admin/administrators'
     | '/_authenticated/admin/emails'
+    | '/_authenticated/admin/messages'
     | '/_authenticated/admin/payments'
+    | '/_authenticated/admin/team'
+    | '/api/public/bridge'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/applications/$id'
     | '/api/public/payhero/callback'
@@ -315,9 +389,12 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SponsorshipRoute: typeof SponsorshipRoute
   StatusRoute: typeof StatusRoute
+  SupportRoute: typeof SupportRoute
+  TeamRoute: typeof TeamRoute
   TermsRoute: typeof TermsRoute
   TestimonialsRoute: typeof TestimonialsRoute
   ConfirmationReferenceRoute: typeof ConfirmationReferenceRoute
+  ApiPublicBridgeRoute: typeof ApiPublicBridgeRoute
   ApiPublicPayheroCallbackRoute: typeof ApiPublicPayheroCallbackRoute
 }
 
@@ -414,6 +491,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StatusRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/team': {
+      id: '/team'
+      path: '/team'
+      fullPath: '/team'
+      preLoaderRoute: typeof TeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -449,11 +540,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/administrators': {
+      id: '/_authenticated/admin/administrators'
+      path: '/administrators'
+      fullPath: '/admin/administrators'
+      preLoaderRoute: typeof AuthenticatedAdminAdministratorsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/emails': {
       id: '/_authenticated/admin/emails'
       path: '/emails'
       fullPath: '/admin/emails'
       preLoaderRoute: typeof AuthenticatedAdminEmailsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/messages': {
+      id: '/_authenticated/admin/messages'
+      path: '/messages'
+      fullPath: '/admin/messages'
+      preLoaderRoute: typeof AuthenticatedAdminMessagesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/payments': {
@@ -462,6 +567,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/payments'
       preLoaderRoute: typeof AuthenticatedAdminPaymentsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/team': {
+      id: '/_authenticated/admin/team'
+      path: '/team'
+      fullPath: '/admin/team'
+      preLoaderRoute: typeof AuthenticatedAdminTeamRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/api/public/bridge': {
+      id: '/api/public/bridge'
+      path: '/api/public/bridge'
+      fullPath: '/api/public/bridge'
+      preLoaderRoute: typeof ApiPublicBridgeRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/applications/': {
       id: '/_authenticated/admin/applications/'
@@ -488,8 +607,11 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAdministratorsRoute: typeof AuthenticatedAdminAdministratorsRoute
   AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
+  AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
   AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
+  AuthenticatedAdminTeamRoute: typeof AuthenticatedAdminTeamRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminApplicationsIdRoute: typeof AuthenticatedAdminApplicationsIdRoute
   AuthenticatedAdminApplicationsIndexRoute: typeof AuthenticatedAdminApplicationsIndexRoute
@@ -497,8 +619,12 @@ interface AuthenticatedAdminRouteRouteChildren {
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminAdministratorsRoute:
+      AuthenticatedAdminAdministratorsRoute,
     AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
+    AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
     AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
+    AuthenticatedAdminTeamRoute: AuthenticatedAdminTeamRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminApplicationsIdRoute:
       AuthenticatedAdminApplicationsIdRoute,
@@ -536,9 +662,12 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SponsorshipRoute: SponsorshipRoute,
   StatusRoute: StatusRoute,
+  SupportRoute: SupportRoute,
+  TeamRoute: TeamRoute,
   TermsRoute: TermsRoute,
   TestimonialsRoute: TestimonialsRoute,
   ConfirmationReferenceRoute: ConfirmationReferenceRoute,
+  ApiPublicBridgeRoute: ApiPublicBridgeRoute,
   ApiPublicPayheroCallbackRoute: ApiPublicPayheroCallbackRoute,
 }
 export const routeTree = rootRouteImport

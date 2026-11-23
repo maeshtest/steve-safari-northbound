@@ -15,7 +15,9 @@ const directories = [
 
 const main = [
   { to: "/about", label: "About" },
+  { to: "/team", label: "Team" },
   { to: "/testimonials", label: "Testimonials" },
+  { to: "/support", label: "Support" },
   { to: "/contact", label: "Contact" },
 ] as const;
 
@@ -40,7 +42,9 @@ export function SiteHeader() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+          <Link to="/team" className={linkCls} activeProps={{ className: "text-primary" }}>Team</Link>
           <Link to="/testimonials" className={linkCls} activeProps={{ className: "text-primary" }}>Testimonials</Link>
+          <Link to="/support" className={linkCls} activeProps={{ className: "text-primary" }}>Support</Link>
           <Link to="/contact" className={linkCls} activeProps={{ className: "text-primary" }}>Contact</Link>
           <Link to="/status" className={linkCls} activeProps={{ className: "text-primary" }}>Check status</Link>
         </nav>
