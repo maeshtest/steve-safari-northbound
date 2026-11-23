@@ -31,20 +31,20 @@ function TeamAdmin() {
 
   const upload = async (file: File) => {
     if (!form) return;
-    if (file.size > 5_000_000) return toast.error("Photo must be under 5 MB");
+    if (file.size > 5_000_000) { toast.error("Photo must be under 5 MB"); return; }
     const path = `team/${crypto.randomUUID()}-${file.name.replace(/[^a-z0-9.]+/gi, "-")}`;
     const { error } = await supabase.storage.from("site-media").upload(path, file, { contentType: file.type });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setForm({ ...form, photo_url: supabase.storage.from("site-media").getPublicUrl(path).data.publicUrl });
   };
 
   const save = async () => {
-    if (!form || form.full_name.trim().length < 2) return toast.error("Enter a name");
+    if (!form || form.full_name.trim().length < 2) { toast.error("Enter a name"); return; }
     setBusy(true);
     const { id, ...row } = form;
     const { error } = id ? await supabase.from("team_members").update(row).eq("id", id) : await supabase.from("team_members").insert(row);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Saved");
     setForm(null);
     refresh();
