@@ -8,13 +8,14 @@ const BASE = "https://backend.payhero.co.ke/api/v2";
 type PayheroConfig = NonNullable<Awaited<ReturnType<typeof getPayheroConfig>>>;
 
 function authHeader(cfg: PayheroConfig) {
-  return `Basic ${btoa(`${cfg.username}:${cfg.password}`)}`;
+  // If the user pasted the "Basic " prefix, don't duplicate it. Otherwise, prepend it.
+  return cfg.apiToken.startsWith("Basic ") ? cfg.apiToken : `Basic ${cfg.apiToken}`;
 }
 
 export async function payheroTestConnection(cfg: PayheroConfig): Promise<{ ok: boolean; message: string }> {
   try {
     const res = await fetch(`${BASE}/payment_channels`, { headers: { Authorization: authHeader(cfg) } });
-    if (res.status === 401 || res.status === 403) return { ok: false, message: "PayHero rejected the API username or password." };
+    if (res.status === 401 || res.status === 403) return { ok: false, message: "PayHero rejected the API token." };
     if (!res.ok) return { ok: false, message: `PayHero responded with status ${res.status}.` };
     const body = (await res.json().catch(() => null)) as unknown;
     const list = Array.isArray(body) ? body : (body as { data?: unknown[] } | null)?.data;
@@ -61,7 +62,6 @@ export async function payheroStatus(cfg: PayheroConfig, reference: string) {
 
 /**
  * Asks PayHero for the authoritative status of a payment and settles it.
- * This is the ONLY path that marks a registration as paid.
  */
 export async function verifyPayment(paymentId: string, hint?: { amount?: number; receipt?: string }) {
   const db = await getAdminClient();
@@ -90,7 +90,6 @@ export async function verifyPayment(paymentId: string, hint?: { amount?: number;
       await db.from("payments").update({ status: "failed", result_desc: `Amount ${reportedAmount} is below the KES ${REGISTRATION_FEE_KES} fee` }).eq("id", payment.id);
       return { status: "failed" as const };
     }
-    // Idempotent: only the first verifier flips the status.
     const { data: updated } = await db
       .from("payments")
       .update({ status: "success", mpesa_receipt: receipt, verified_at: new Date().toISOString(), result_desc: "Verified with PayHero" })
