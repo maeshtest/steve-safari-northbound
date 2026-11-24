@@ -13,8 +13,38 @@ async function assertAdmin(ctx: Ctx) {
   if (!data) throw new Error("You do not have permission to do this.");
 }
 
+// Helper to call the Lovable Bridge from Vercel
+async function fetchFromBridge(action: string, extraData: Record<string, unknown> = {}) {
+  const bridgeKey = process.env["STEVE_SAFARI_BRIDGE_KEY"];
+  const bridgeUrl = process.env["STEVE_SAFARI_BRIDGE_URL"] || "https://stevesafari.tronnlix.com/api/public/bridge";
+
+  if (!bridgeKey) return null; // Fallback to direct DB if key isn't set
+
+  try {
+    const res = await fetch(bridgeUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Bridge-Key": bridgeKey,
+      },
+      body: JSON.stringify({ action, ...extraData }),
+    });
+    if (!res.ok) throw new Error("Bridge request failed");
+    const json = await res.json();
+    return json.data;
+  } catch (err) {
+    console.error("Bridge error:", err);
+    return null;
+  }
+}
+
 // ---------- Team (public read) ----------
 export const getTeam = createServerFn({ method: "GET" }).handler(async () => {
+  // 1. Try the Bridge first (for Vercel)
+  const bridgeData = await fetchFromBridge("team");
+  if (bridgeData) return bridgeData;
+
+  // 2. Fallback to direct DB (for Lovable)
   const { getPublicClient } = await import("@/lib/server/public-client.server");
   const { data, error } = await getPublicClient()
     .from("team_members")
@@ -40,6 +70,12 @@ export const removeDemoMembers = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     await assertSuper(context);
     const { getAdminClient } = await import("@/lib/server/admin-client.server");
+    
+    // Guard: Admin client won't work on Vercel
+    if (!process.env["SUPABASE_SERVICE_ROLE_KEY"] && !process.env["SUPABASE_SECRET_KEY"]) {
+      throw new Error("Admin operations must be performed on the Lovable domain, not Vercel.");
+    }
+
     const db = await getAdminClient();
     const { error, count } = await db.from("applications").delete({ count: "exact" }).eq("is_demo", true);
     if (error) throw new Error(error.message);
@@ -63,6 +99,12 @@ export const createBridgeKey = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => z.object({ label: z.string().trim().min(2).max(80) }).parse(i))
   .handler(async ({ data, context }) => {
     await assertSuper(context);
+    
+    // Guard: Cannot generate keys on Vercel
+    if (!process.env["SUPABASE_SERVICE_ROLE_KEY"] && !process.env["SUPABASE_SECRET_KEY"]) {
+      throw new Error("Bridge keys must be generated from the Lovable dashboard, not Vercel.");
+    }
+
     const { randomToken, sha256Hex } = await import("@/lib/server/crypto.server");
     const { getAdminClient } = await import("@/lib/server/admin-client.server");
     const key = `ssb_${randomToken(32)}`;
