@@ -2,6 +2,7 @@ import { REGISTRATION_FEE_KES } from "@/lib/constants";
 import { getAdminClient } from "./admin-client.server";
 import { getPayheroConfig } from "./settings.server";
 import { sendTemplateToApplication } from "./email.server";
+import { callPrimaryBridge, hasServiceKey } from "./bridge.server";
 
 const BASE = "https://backend.payhero.co.ke/api/v2";
 
@@ -64,6 +65,13 @@ export async function payheroStatus(cfg: PayheroConfig, reference: string) {
  * Asks PayHero for the authoritative status of a payment and settles it.
  */
 export async function verifyPayment(paymentId: string, hint?: { amount?: number; receipt?: string }) {
+  if (!hasServiceKey()) {
+    return callPrimaryBridge<{ status: "not_found" | "initiated" | "queued" | "success" | "failed" | "cancelled" }>({
+      action: "recheck_payment",
+      paymentId,
+      ...(hint ? { hint } : {}),
+    });
+  }
   const db = await getAdminClient();
   const { data: payment } = await db.from("payments").select("*").eq("id", paymentId).maybeSingle();
   if (!payment) return { status: "not_found" as const };
@@ -124,4 +132,32 @@ async function settleApplication(applicationId: string, receipt: string | null) 
     });
   }
   await sendTemplateToApplication("payment_confirmed", applicationId, { receipt: receipt ?? "—" }, null, "payment_confirmation");
+}
+
+export async function processPayheroCallback(payload: Record<string, unknown>) {
+  const db = await getAdminClient();
+  const response = payload["response"] !== null && typeof payload["response"] === "object"
+    ? payload["response"] as Record<string, unknown>
+    : {};
+  const externalReference = typeof response["ExternalReference"] === "string" ? response["ExternalReference"] : null;
+  const { data: log } = await db.from("payment_callbacks").insert({ payload: payload as never, external_reference: externalReference }).select("id").single();
+  let result = "No matching payment";
+  let verified = false;
+  if (externalReference) {
+    const { data: payment } = await db.from("payments").select("id, checkout_request_id").eq("external_reference", externalReference).maybeSingle();
+    if (payment) {
+      const checkout = response["CheckoutRequestID"];
+      if (payment.checkout_request_id && checkout && checkout !== payment.checkout_request_id) {
+        result = "CheckoutRequestID mismatch — ignored";
+      } else {
+        const amount = typeof response["Amount"] === "number" ? response["Amount"] : undefined;
+        const receipt = typeof response["MpesaReceiptNumber"] === "string" ? response["MpesaReceiptNumber"] : undefined;
+        const outcome = await verifyPayment(payment.id, { ...(amount !== undefined ? { amount } : {}), ...(receipt ? { receipt } : {}) });
+        verified = outcome.status === "success";
+        result = `Verified with PayHero: ${outcome.status}`;
+      }
+    }
+  }
+  if (log) await db.from("payment_callbacks").update({ verified, processing_result: result }).eq("id", log.id);
+  return { ok: true };
 }

@@ -28,3 +28,5 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+Server-side privileged operations use direct execution on the primary host and otherwise call its bridge with `HL_SERVER_KEY`; this keeps database and provider secrets on the primary deployment.

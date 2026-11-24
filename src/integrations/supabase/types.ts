@@ -162,6 +162,7 @@ export type Database = {
           terms_accepted_at: string
           terms_version: string
           updated_at: string
+          zoom_meeting_completed_at: string | null
         }
         Insert: {
           applicant_token_hash: string
@@ -183,6 +184,7 @@ export type Database = {
           terms_accepted_at?: string
           terms_version: string
           updated_at?: string
+          zoom_meeting_completed_at?: string | null
         }
         Update: {
           applicant_token_hash?: string
@@ -204,6 +206,7 @@ export type Database = {
           terms_accepted_at?: string
           terms_version?: string
           updated_at?: string
+          zoom_meeting_completed_at?: string | null
         }
         Relationships: []
       }
