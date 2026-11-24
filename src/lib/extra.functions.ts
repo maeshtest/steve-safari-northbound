@@ -14,15 +14,23 @@ async function assertAdmin(ctx: Ctx) {
 
 // ---------- Team (public read) ----------
 export const getTeam = createServerFn({ method: "GET" }).handler(async () => {
-  const { getPublicClient } = await import("@/lib/server/public-client.server");
-  const { data, error } = await getPublicClient()
-    .from("team_members")
-    .select("id, full_name, role_title, bio, photo_url, sort_order")
-    .eq("is_visible", true)
-    .order("sort_order")
-    .order("created_at");
-  if (error) throw new Error("Could not load the team");
-  return data ?? [];
+  const { getPublicClient, resilientPublicRead } = await import("@/lib/server/public-client.server");
+  type TeamRow = { id: string; full_name: string; role_title: string; bio: string | null; photo_url: string | null; sort_order: number };
+  return resilientPublicRead<TeamRow[]>(
+    "team",
+    async () => {
+      const { data, error } = await getPublicClient()
+        .from("team_members")
+        .select("id, full_name, role_title, bio, photo_url, sort_order")
+        .eq("is_visible", true)
+        .order("sort_order")
+        .order("created_at");
+      if (error) throw error;
+      return (data ?? []) as TeamRow[];
+    },
+    { action: "team" },
+    [],
+  );
 });
 
 // ---------- Sample data ----------
