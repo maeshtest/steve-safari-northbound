@@ -74,18 +74,33 @@ export const submitRegistration = createServerFn({ method: "POST" })
       })
       .select("id, reference")
       .single();
+      
     if (error || !app) {
       if (error?.code === "23505") return { ok: false as const, error: "An application already exists for this national ID." };
       console.error("registration insert failed", error?.message);
       return { ok: false as const, error: "We could not save your registration. Please try again." };
     }
-    await db.from("terms_acceptances").insert({
-      application_id: app.id,
-      policy_version: POLICY_VERSION,
-      user_agent: request.headers.get("user-agent")?.slice(0, 300) ?? null,
-    });
-    await db.from("status_history").insert({ application_id: app.id, to_stage: "registered", note: "Registration submitted" });
-    await sendTemplateToApplication("registration_received", app.id, {}, null, "registration");
+
+    // ── Post-insert side effects ──────────────────────────────────────────
+    // We wrap these in try/catch so a failure here NEVER blocks the user 
+    // from proceeding to the payment step.
+    try {
+      await db.from("terms_acceptances").insert({
+        application_id: app.id,
+        policy_version: POLICY_VERSION,
+        user_agent: request.headers.get("user-agent")?.slice(0, 300) ?? null,
+      });
+      await db.from("status_history").insert({ application_id: app.id, to_stage: "registered", note: "Registration submitted" });
+    } catch (e) {
+      console.error("Failed to log registration details:", e);
+    }
+
+    try {
+      await sendTemplateToApplication("registration_received", app.id, {}, null, "registration");
+    } catch (e) {
+      console.error("Failed to send registration email:", e);
+    }
+
     return { ok: true as const, reference: app.reference, token };
   });
 
@@ -216,7 +231,14 @@ export const initiatePayment = createServerFn({ method: "POST" })
     const { payheroInitiate } = await import("@/lib/server/payhero.server");
     const db = await getAdminClient();
 
-    const cfg = await getPayheroConfig();
+    let cfg;
+    try {
+      cfg = await getPayheroConfig();
+    } catch (e) {
+      console.error("Failed to load PayHero config:", e);
+      return { ok: false as const, error: "Payment settings are currently unavailable. Please contact support." };
+    }
+
     if (!cfg) return { ok: false as const, error: "Online payment is temporarily unavailable. Please try again later or contact us." };
 
     const { data: recent } = await db
