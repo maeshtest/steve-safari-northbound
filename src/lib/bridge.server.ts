@@ -11,22 +11,20 @@ export function hasServiceKey(): boolean {
  * Returns the bridge token from environment variables.
  */
 function getBridgeToken(): string {
+  // You can use HL_SERVER_KEY or STEVE_SAFARI_BRIDGE_KEY
   const token = process.env.HL_SERVER_KEY || process.env.STEVE_SAFARI_BRIDGE_KEY;
   if (!token) throw new Error("Missing server bridge key (HL_SERVER_KEY)");
   return token;
 }
 
-/**
- * Reads a secure setting (like Resend API keys or PayHero passwords).
- */
+// ── Bridge Methods ───────────────────────────────────────────────────────────
+
 export async function readSetting(key: string): Promise<any> {
   if (hasServiceKey()) {
-    // Branch A: Direct Admin
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin.from("app_settings").select("value").eq("key", key).single();
     return data?.value;
   } else {
-    // Branch B: Bridge RPC
     const { data, error } = await supabase.rpc("bridge_setting", {
       _token: getBridgeToken(),
       _key: key,
@@ -36,28 +34,42 @@ export async function readSetting(key: string): Promise<any> {
   }
 }
 
-/**
- * Applies a payment result (credit wallet, update transaction).
- * (You will need to create the bridge_apply_payment RPC in SQL for this to work)
- */
-export async function applyPaymentResult(payload: any): Promise<any> {
+export async function getNotificationSettings(): Promise<any | null> {
   if (hasServiceKey()) {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    // Call the direct database function
-    return supabaseAdmin.rpc("payment_apply_result", payload);
+    const { data } = await supabaseAdmin.from("notification_settings").select("*").eq("id", true).maybeSingle();
+    return data;
   } else {
-    const { data, error } = await supabase.rpc("bridge_apply_payment", {
+    const { data, error } = await supabase.rpc("bridge_notification_settings", {
       _token: getBridgeToken(),
-      _payload: payload,
     });
-    if (error) throw new Error(error.message);
+    if (error) return null;
     return data;
   }
 }
 
-/**
- * Logs a webhook event.
- */
+export async function logNotification(row: { channel: string; kind: string; target?: string | null; status: string; detail?: string | null }): Promise<void> {
+  try {
+    if (hasServiceKey()) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("notification_log").insert({
+        channel: row.channel, kind: row.kind, target: row.target ?? null, status: row.status, detail: row.detail ? row.detail.slice(0, 500) : null,
+      });
+    } else {
+      await supabase.rpc("bridge_log_notification", {
+        _token: getBridgeToken(),
+        _channel: row.channel,
+        _kind: row.kind,
+        _target: row.target ?? null,
+        _status: row.status,
+        _detail: row.detail ? row.detail.slice(0, 500) : null,
+      });
+    }
+  } catch {
+    // Logging must never break the main flow
+  }
+}
+
 export async function logWebhook(payload: any): Promise<any> {
   if (hasServiceKey()) {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
