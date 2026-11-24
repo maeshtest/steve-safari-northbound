@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PageHeader, RequireAdmin, fmtDate } from "@/components/admin/ui";
+import { PageHeader, RequireAdmin } from "@/components/admin/ui";
 import { getIntegrationStatus, saveEmailSettings, savePayhero, sendTestEmail, testPayhero } from "@/lib/admin.functions";
 import { createBridgeKey, getDemoCount, removeDemoMembers } from "@/lib/extra.functions";
 
@@ -24,9 +24,11 @@ function Settings() {
   const testEmail = useServerFn(sendTestEmail);
   const savePh = useServerFn(savePayhero);
   const testPh = useServerFn(testPayhero);
+  
   const [em, setEm] = useState({ api_key: "", from_name: "Steve Safari", from_email: "", reply_to: "" });
-  const [ph, setPh] = useState({ api_username: "", api_password: "", channel_id: "", callback_base_url: "" });
+  const [ph, setPh] = useState({ api_token: "", channel_id: "" });
   const [to, setTo] = useState("");
+  
   const s = status.data;
   const refresh = () => qc.invalidateQueries({ queryKey: ["integrations"] });
 
@@ -54,14 +56,32 @@ function Settings() {
       <section className={card}>
         <h2 className="text-lg font-medium">M-Pesa — PayHero {s?.payhero.configured && <span className="text-sm text-primary">· connected</span>}</h2>
         <div className="grid gap-3 md:grid-cols-2">
-          <div><Label>API username</Label><Input value={ph.api_username} placeholder={s?.payhero.publicConfig["api_username"]} onChange={(e) => setPh({ ...ph, api_username: e.target.value })} /></div>
-          <div><Label>API password {s?.payhero.hasSecret && "(saved)"}</Label><Input type="password" value={ph.api_password} onChange={(e) => setPh({ ...ph, api_password: e.target.value })} /></div>
-          <div><Label>Channel ID</Label><Input value={ph.channel_id} placeholder={s?.payhero.publicConfig["channel_id"]} onChange={(e) => setPh({ ...ph, channel_id: e.target.value })} /></div>
-          <div><Label>Callback base URL (optional)</Label><Input value={ph.callback_base_url} onChange={(e) => setPh({ ...ph, callback_base_url: e.target.value })} /></div>
+          <div className="md:col-span-2">
+            <Label>API Token (Basic Auth) {s?.payhero.hasSecret && "(saved — leave blank to keep)"}</Label>
+            <Input 
+              type="password" 
+              placeholder="e.g. dXNlcm5hbWU6cGFzc3dvcmQ=" 
+              value={ph.api_token} 
+              onChange={(e) => setPh({ ...ph, api_token: e.target.value })} 
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Paste the token generated from <strong>app.payhero.co.ke → API Keys</strong>. The app will automatically handle the <code>Basic </code> prefix.
+            </p>
+          </div>
+          <div>
+            <Label>Channel ID</Label>
+            <Input value={ph.channel_id} placeholder={s?.payhero.publicConfig["channel_id"]} onChange={(e) => setPh({ ...ph, channel_id: e.target.value })} />
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground">Callback URL: {s?.defaultCallbackUrl}</p>
+        
+        <div className="rounded-md bg-muted p-3 mt-2 border border-border">
+          <Label className="text-xs font-semibold text-muted-foreground uppercase">Active Callback URL</Label>
+          <p className="text-sm font-mono mt-1 break-all select-all">{s?.defaultCallbackUrl}</p>
+          <p className="text-xs text-muted-foreground mt-1">This is automatically passed to PayHero with every STK Push.</p>
+        </div>
+
         <div className="flex gap-2">
-          <Button onClick={async () => { if (await act(savePh({ data: { ...ph, api_password: ph.api_password || undefined } }), "PayHero saved")) refresh(); }}>Save</Button>
+          <Button onClick={async () => { if (await act(savePh({ data: { api_token: ph.api_token || undefined, channel_id: ph.channel_id || (s?.payhero.publicConfig["channel_id"] ?? "") } }), "PayHero saved")) refresh(); }}>Save</Button>
           <Button variant="outline" onClick={async () => { const r = await testPh(); r.ok ? toast.success(r.message) : toast.error(r.message); }}>Test connection</Button>
         </div>
       </section>
