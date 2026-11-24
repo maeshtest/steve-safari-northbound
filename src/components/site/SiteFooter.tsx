@@ -8,12 +8,19 @@ export function SiteFooter() {
   const { data } = useQuery(siteContentQuery);
   const contact = data?.contact;
   const social = data?.social;
+  
+  // Updated fallback details
+  const phone = contact?.phone || "+1 (343) 296-9450";
+  const email = contact?.email || "dereknash@usa.com";
+  const address = contact?.address || "Quebec, Canada";
+
   const socials = [
     { href: social?.facebook, icon: Facebook, label: "Facebook" },
     { href: social?.instagram, icon: Instagram, label: "Instagram" },
     { href: social?.linkedin, icon: Linkedin, label: "LinkedIn" },
     { href: social?.youtube, icon: Youtube, label: "YouTube" },
   ].filter((s) => s.href);
+  
   return (
     <footer className="bg-forest-gradient text-forest-foreground">
       <div className="container-page grid gap-10 py-16 md:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
@@ -58,9 +65,18 @@ export function SiteFooter() {
         <div>
           <p className="eyebrow text-gold">Contact</p>
           <ul className="mt-4 space-y-3 text-sm text-forest-foreground/80">
-            {contact?.phone && <li className="flex gap-2"><Phone className="mt-0.5 h-4 w-4 shrink-0" />{contact.phone}</li>}
-            {contact?.email && <li className="flex gap-2"><Mail className="mt-0.5 h-4 w-4 shrink-0" />{contact.email}</li>}
-            {contact?.address && <li className="flex gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0" />{contact.address}</li>}
+            <li className="flex gap-2">
+              <Phone className="mt-0.5 h-4 w-4 shrink-0" />
+              {phone}
+            </li>
+            <li className="flex gap-2">
+              <Mail className="mt-0.5 h-4 w-4 shrink-0" />
+              {email}
+            </li>
+            <li className="flex gap-2">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+              {address}
+            </li>
           </ul>
         </div>
       </div>
