@@ -127,6 +127,19 @@ export const requestMoreInfo = createServerFn({ method: "POST" })
     return { emailStatus: r.status };
   });
 
+/** Records (or clears) the required Zoom meeting; approval is blocked by the database until it is recorded. */
+export const setZoomMeeting = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ applicationId: z.string().uuid(), completed: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertRole(context, "admin");
+    const value = data.completed ? new Date().toISOString() : null;
+    const { error } = await context.supabase.from("applications").update({ zoom_meeting_completed_at: value }).eq("id", data.applicationId);
+    if (error) throw new Error(error.message);
+    await logActivity(context, data.completed ? "application.zoom_completed" : "application.zoom_cleared", "application", data.applicationId);
+    return { zoomMeetingCompletedAt: value };
+  });
+
 export const clearInfoRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ applicationId: z.string().uuid() }).parse(input))

@@ -70,7 +70,7 @@ function Confirmation() {
         <div className="rounded-2xl border border-border bg-card p-7 shadow-soft md:p-10">
           <CheckCircle2 className="h-10 w-10 text-success" />
           <h1 className="mt-4 text-3xl font-medium md:text-4xl">{view ? `Thank you, ${view.firstName}.` : "Registration received."}</h1>
-          <p className="mt-2 text-muted-foreground">Keep your reference number — you'll need it with your national ID to check your status.</p>
+          <p className="mt-2 text-muted-foreground">Keep your reference number — you can check your status with it or your national ID. After you pay, our team will contact you to book your Zoom meeting with Steve Safari and the team, which is required before approval.</p>
           <div className="mt-6 flex flex-wrap items-center gap-3 rounded-xl bg-secondary px-5 py-4">
             <span className="eyebrow text-muted-foreground">Reference</span>
             <span className="font-display text-2xl tracking-wide text-primary">{reference}</span>

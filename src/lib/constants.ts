@@ -34,7 +34,7 @@ export const STAGE_LABELS: Record<MemberStage, string> = {
 
 export const STAGE_DESCRIPTIONS: Record<MemberStage, string> = {
   registered: "Your details have been received. Complete the KES 500 payment to continue.",
-  pending_approval: "Payment confirmed. Our team is reviewing your application.",
+  pending_approval: "Payment confirmed. Our team will contact you by email or phone to book your required Zoom meeting with Steve Safari and the team before approval.",
   approved: "You are an approved member and will be considered for sponsorship.",
   sponsorship_approved: "A sponsorship has been approved for you.",
   waiting_for_flight: "You are on the flight waiting list. Travel details will follow.",

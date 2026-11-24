@@ -226,7 +226,7 @@ function Register() {
             <ol className="mt-4 space-y-3 text-sm text-muted-foreground">
               <li><strong className="text-foreground">1.</strong> You receive a reference number.</li>
               <li><strong className="text-foreground">2.</strong> You pay KES {REGISTRATION_FEE_KES} via the M-Pesa prompt.</li>
-              <li><strong className="text-foreground">3.</strong> Our team reviews your application.</li>
+              <li><strong className="text-foreground">3.</strong> Our team contacts you to book an online Zoom meeting with Steve Safari and the team — required before approval.</li>
               <li><strong className="text-foreground">4.</strong> Track progress any time on the status page.</li>
             </ol>
           </div>

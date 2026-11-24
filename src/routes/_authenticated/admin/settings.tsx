@@ -9,6 +9,9 @@ import { Label } from "@/components/ui/label";
 import { PageHeader, RequireAdmin } from "@/components/admin/ui";
 import { getIntegrationStatus, saveEmailSettings, savePayhero, sendTestEmail, testPayhero } from "@/lib/admin.functions";
 import { createBridgeKey, getDemoCount, removeDemoMembers } from "@/lib/extra.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { siteContentQuery } from "@/lib/queries";
+import type { ContactContent } from "@/lib/site-content";
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({ component: () => <RequireAdmin><Settings /></RequireAdmin> });
 
@@ -86,9 +89,45 @@ function Settings() {
         </div>
       </section>
 
+      <SupportContactSection />
       <BridgeSection />
       <DemoSection />
     </div>
+  );
+}
+
+function SupportContactSection() {
+  const qc = useQueryClient();
+  const content = useQuery(siteContentQuery);
+  const [c, setC] = useState<ContactContent | null>(null);
+  const current = c ?? content.data?.contact ?? { phone: "", email: "", whatsapp: "", address: "", hours: "" };
+  const fields: { key: keyof ContactContent; label: string; placeholder: string }[] = [
+    { key: "email", label: "Support email", placeholder: "support@yourdomain.com" },
+    { key: "phone", label: "Phone number", placeholder: "+254 7XX XXX XXX" },
+    { key: "whatsapp", label: "WhatsApp number", placeholder: "+254 7XX XXX XXX" },
+    { key: "address", label: "Office address", placeholder: "Nairobi, Kenya" },
+    { key: "hours", label: "Working hours", placeholder: "Monday – Friday, 8:00am – 5:00pm EAT" },
+  ];
+  return (
+    <section className={card}>
+      <h2 className="text-lg font-medium">Support contact details</h2>
+      <p className="text-sm text-muted-foreground">Shown on the Contact and Support pages and in the site footer.</p>
+      <div className="grid gap-3 md:grid-cols-2">
+        {fields.map((f) => (
+          <div key={f.key}><Label>{f.label}</Label><Input placeholder={f.placeholder} value={current[f.key]} onChange={(e) => setC({ ...current, [f.key]: e.target.value })} /></div>
+        ))}
+      </div>
+      <Button
+        disabled={!c}
+        onClick={async () => {
+          const { error } = await supabase.from("site_content").upsert({ key: "contact", value: current as never }, { onConflict: "key" });
+          if (error) { toast.error(error.message); return; }
+          toast.success("Support details saved");
+          setC(null);
+          void qc.invalidateQueries({ queryKey: siteContentQuery.queryKey });
+        }}
+      >Save support details</Button>
+    </section>
   );
 }
 

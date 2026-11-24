@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { changeStage, clearInfoRequest, recheckPayment, requestMoreInfo } from "@/lib/admin.functions";
+import { changeStage, clearInfoRequest, recheckPayment, requestMoreInfo, setZoomMeeting } from "@/lib/admin.functions";
 import { STAGE_LABELS } from "@/lib/constants";
 import { PageHeader, PaymentBadge, RequireAdmin, StageBadge, TxnBadge, fmtDate } from "@/components/admin/ui";
 import { StageChangeDialog } from "@/components/admin/StageChangeDialog";
@@ -30,6 +30,7 @@ function ApplicationDetail() {
   const askInfo = useServerFn(requestMoreInfo);
   const clearInfo = useServerFn(clearInfoRequest);
   const recheck = useServerFn(recheckPayment);
+  const zoom = useServerFn(setZoomMeeting);
   const [stageOpen, setStageOpen] = useState(false);
   const [note, setNote] = useState("");
   const [infoMsg, setInfoMsg] = useState("");
@@ -182,6 +183,34 @@ function ApplicationDetail() {
         </div>
 
         <div className="space-y-6">
+          <section className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-medium">Zoom meeting</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {a.payment_status !== "paid"
+                ? "The applicant must pay the KES 500 fee first. Then contact them by email or phone to book the Zoom meeting with Steve Safari and the team."
+                : a.zoom_meeting_completed_at
+                  ? `Completed ${fmtDate(a.zoom_meeting_completed_at)}. The application can now be approved.`
+                  : "Contact the applicant by email or phone to book the Zoom meeting. Approval is blocked until it is marked complete."}
+            </p>
+            <Button
+              size="sm"
+              variant={a.zoom_meeting_completed_at ? "outline" : "default"}
+              className="mt-3"
+              disabled={busy === "zoom" || (a.payment_status !== "paid" && !a.zoom_meeting_completed_at)}
+              onClick={async () => {
+                setBusy("zoom");
+                try {
+                  await zoom({ data: { applicationId: id, completed: !a.zoom_meeting_completed_at } });
+                  toast.success(a.zoom_meeting_completed_at ? "Zoom meeting marked as not done" : "Zoom meeting marked complete");
+                  void refresh();
+                } catch (e) { toast.error((e as Error).message); }
+                setBusy(null);
+              }}
+            >
+              {a.zoom_meeting_completed_at ? "Undo — meeting not done" : "Mark Zoom meeting complete"}
+            </Button>
+          </section>
+
           <section className="rounded-xl border border-border bg-card p-6">
             <h2 className="flex items-center gap-2 text-lg font-medium"><MessageCircleQuestion className="h-5 w-5 text-accent" /> Request more information</h2>
             {a.info_requested && (
