@@ -57,7 +57,7 @@ function json(body: unknown, status = 200) {
   return Response.json(body, { status, headers: CORS });
 }
 
-function hasValidLookup(b: { reference?: string; nationalId?: string; token?: string }) {
+function hasValidLookup(b: { reference?: string | undefined; nationalId?: string | undefined; token?: string | undefined }) {
   return hasExactlyOneApplicantIdentifier(b.reference, b.nationalId) || Boolean(b.reference && b.token && !b.nationalId);
 }
 
