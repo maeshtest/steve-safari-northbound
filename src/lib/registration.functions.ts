@@ -32,6 +32,18 @@ function getBridgeToken() {
   return token;
 }
 
+async function viaBridge(action: string, data: Record<string, unknown>, fallbackError: string) {
+  const { callPrimaryBridge } = await import("@/lib/server/bridge.server");
+  const headers = getRequest().headers;
+  const callerIp = headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? headers.get("x-real-ip") ?? undefined;
+  try {
+    return await callPrimaryBridge<Record<string, unknown>>({ action, ...data, ...(callerIp ? { callerIp } : {}) });
+  } catch (error) {
+    console.error(`Bridge ${action} failed`, error);
+    return { ok: false, error: error instanceof Error && error.message ? error.message : fallbackError };
+  }
+}
+
 async function resolveApplicantDirect(auth: ApplicantAuth) {
   const { getAdminClient } = await import("@/lib/server/admin-client.server");
   const { sha256Hex, safeEqual } = await import("@/lib/server/crypto.server");
@@ -49,29 +61,16 @@ async function resolveApplicantDirect(auth: ApplicantAuth) {
 export const submitRegistration = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => registrationSchema.parse(input))
   .handler(async ({ data }) => {
+    if (!hasServiceKey()) {
+      const r = await viaBridge("register", { fullName: data.fullName.replace(/\s+/g, " "), nationalId: data.nationalId.toUpperCase(), phone: normalizeKenyanPhone(data.phone)!, email: data.email.toLowerCase(), county: data.county, publicConsent: data.publicConsent, acceptedTerms: true, policyVersion: data.policyVersion, userAgent: getRequest().headers.get("user-agent")?.slice(0, 300) ?? "" }, "Could not save your registration. Please try again.");
+      if (!r["ok"]) return { ok: false as const, error: String(r["error"] ?? "Could not save your registration. Please try again.") };
+      if (r["existing"]) return { ok: false as const, error: `An application already exists for this national ID (reference ${String(r["reference"])}). Use "Check status" to continue it.` };
+      return { ok: true as const, reference: String(r["reference"]), token: String(r["token"]) };
+    }
     const request = getRequest();
     const userAgent = request.headers.get("user-agent")?.slice(0, 300) ?? "";
     const normalizedPhone = normalizeKenyanPhone(data.phone)!;
 
-    // ── Branch B: Bridge (Vercel) ──────────────────────────────────────────
-    if (!hasServiceKey()) {
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data: result, error } = await supabase.rpc("bridge_submit_registration", {
-        _token: getBridgeToken(),
-        _full_name: data.fullName.replace(/\s+/g, " "),
-        _national_id: data.nationalId.toUpperCase(),
-        _phone: normalizedPhone,
-        _email: data.email.toLowerCase(),
-        _county: data.county,
-        _public_consent: data.publicConsent,
-        _policy_version: POLICY_VERSION,
-        _user_agent: userAgent,
-      });
-      if (error) return { ok: false as const, error: "Could not save your registration. Please try again." };
-      const parsed = typeof result === "string" ? JSON.parse(result) : result;
-      if (!parsed.ok) return { ok: false as const, error: parsed.error };
-      return { ok: true as const, reference: parsed.reference, token: parsed.token };
-    }
 
     // ── Branch A: Direct Admin (Lovable) ──────────────────────────────────
     const { getAdminClient, rateLimit, clientIp } = await import("@/lib/server/admin-client.server");
@@ -145,6 +144,11 @@ const uploadRequestSchema = applicantAuth.extend({
 export const requestDocumentUploads = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => uploadRequestSchema.parse(input))
   .handler(async ({ data }) => {
+    if (!hasServiceKey()) {
+      const r = await viaBridge("request_document_uploads", { reference: data.reference, token: data.token ?? "", files: data.files }, "Could not prepare the upload. Please try again.");
+      if (!r["ok"]) return { ok: false as const, error: String(r["error"] ?? "Could not prepare the upload.") };
+      return { ok: true as const, uploads: r["uploads"] as { documentId: string; path: string; token: string }[] };
+    }
     const app = await resolveApplicantDirect(data);
     if (!app) return { ok: false as const, error: "We could not verify this application." };
     const { getAdminClient } = await import("@/lib/server/admin-client.server");
@@ -171,6 +175,10 @@ export const requestDocumentUploads = createServerFn({ method: "POST" })
 export const confirmDocumentUploads = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => applicantAuth.extend({ documentIds: z.array(z.string().uuid()).max(MAX_DOCS) }).parse(input))
   .handler(async ({ data }) => {
+    if (!hasServiceKey()) {
+      const r = await viaBridge("confirm_document_uploads", { reference: data.reference, token: data.token ?? "", documentIds: data.documentIds }, "Could not confirm uploads.");
+      return r["ok"] ? { ok: true as const } : { ok: false as const };
+    }
     const app = await resolveApplicantDirect(data);
     if (!app) return { ok: false as const };
     const { getAdminClient } = await import("@/lib/server/admin-client.server");
@@ -208,16 +216,9 @@ export const lookupApplication = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => applicantAuth.parse(input))
   .handler(async ({ data }) => {
     if (!hasServiceKey()) {
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data: result, error } = await supabase.rpc("bridge_lookup_application", {
-        _token: getBridgeToken(),
-        _reference: data.reference,
-        _national_id: data.nationalId ?? "",
-      });
-      if (error) return { ok: false as const, error: "Lookup failed." };
-      const parsed = typeof result === "string" ? JSON.parse(result) : result;
-      if (!parsed.ok) return { ok: false as const, error: parsed.error };
-      return { ok: true as const, application: parsed.application };
+      const r = await viaBridge("lookup", { reference: data.reference, ...(data.token ? { token: data.token } : {}), ...(data.nationalId ? { nationalId: data.nationalId } : {}) }, "Lookup failed.");
+      if (!r["ok"]) return { ok: false as const, error: String(r["error"] ?? "Lookup failed.") };
+      return { ok: true as const, application: r["application"] as ReturnType<typeof publicView> };
     }
 
     const { rateLimit, clientIp } = await import("@/lib/server/admin-client.server");
@@ -235,22 +236,9 @@ export const getPaymentProgress = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => applicantAuth.parse(input))
   .handler(async ({ data }) => {
     if (!hasServiceKey()) {
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data: lookupRes } = await supabase.rpc("bridge_lookup_application", {
-        _token: getBridgeToken(), _reference: data.reference, _national_id: data.nationalId ?? "",
-      });
-      if (!lookupRes) return { ok: false as const, error: "Could not verify application." };
-      const lookup = typeof lookupRes === "string" ? JSON.parse(lookupRes) : lookupRes;
-      if (!lookup.ok) return { ok: false as const, error: lookup.error };
-
-      const { data: progressRes, error: progressErr } = await supabase.rpc("bridge_get_payment_progress", {
-        _token: getBridgeToken(),
-        _application_id: lookup.id,
-      });
-      if (progressErr) return { ok: false as const, error: "Could not load progress." };
-      const progress = typeof progressRes === "string" ? JSON.parse(progressRes) : progressRes;
-      if (!progress.ok) return { ok: false as const, error: progress.error };
-      return { ok: true as const, application: progress.application, latestPayment: progress.latestPayment };
+      const r = await viaBridge("payment_progress", { reference: data.reference, ...(data.token ? { token: data.token } : {}), ...(data.nationalId ? { nationalId: data.nationalId } : {}) }, "Could not load progress.");
+      if (!r["ok"]) return { ok: false as const, error: String(r["error"] ?? "Could not load progress.") };
+      return { ok: true as const, application: r["application"] as ReturnType<typeof publicView>, latestPayment: r["latestPayment"] as { status: string | null; message: string | null; createdAt: string } | null };
     }
 
     const app = await resolveApplicantDirect(data);
@@ -287,6 +275,11 @@ export const initiatePayment = createServerFn({ method: "POST" })
     applicantAuth.extend({ phone: z.string().refine((v) => normalizeKenyanPhone(v) !== null, "Enter a valid M-Pesa number") }).parse(input),
   )
   .handler(async ({ data }) => {
+    if (!hasServiceKey()) {
+      const r = await viaBridge("initiate_payment", { reference: data.reference, ...(data.token ? { token: data.token } : {}), ...(data.nationalId ? { nationalId: data.nationalId } : {}), phone: normalizeKenyanPhone(data.phone)! }, "We could not start the payment. Please try again.");
+      if (!r["ok"]) return { ok: false as const, error: String(r["error"] ?? "We could not start the payment. Please try again.") };
+      return { ok: true as const };
+    }
     const phone = normalizeKenyanPhone(data.phone)!;
     const externalReference = `PAY-${Date.now().toString(36).toUpperCase()}`;
     const origin = new URL(getRequest().url).origin;
@@ -304,61 +297,6 @@ export const initiatePayment = createServerFn({ method: "POST" })
     }
     if (!cfg) return { ok: false as const, error: "Online payment is temporarily unavailable. Please try again later or contact us." };
 
-    // ── Branch B: Bridge (Vercel) ──────────────────────────────────────────
-    if (!hasServiceKey()) {
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data: lookupRes, error: lookupErr } = await supabase.rpc("bridge_lookup_application", {
-        _token: getBridgeToken(), _reference: data.reference, _national_id: data.nationalId ?? "",
-      });
-      if (lookupErr) return { ok: false as const, error: "Could not verify application." };
-      const lookup = typeof lookupRes === "string" ? JSON.parse(lookupRes) : lookupRes;
-      if (!lookup.ok) return { ok: false as const, error: lookup.error };
-
-      const { data: payRes, error: payErr } = await supabase.rpc("bridge_initiate_payment", {
-        _token: getBridgeToken(),
-        _application_id: lookup.id,
-        _amount: REGISTRATION_FEE_KES,
-        _phone: phone,
-        _external_reference: externalReference,
-      });
-      if (payErr) return { ok: false as const, error: "Could not start payment." };
-      const pay = typeof payRes === "string" ? JSON.parse(payRes) : payRes;
-      if (!pay.ok) return { ok: false as const, error: pay.error };
-
-      let result: Awaited<ReturnType<typeof payheroInitiate>>;
-      try {
-        result = await payheroInitiate(cfg, {
-          amount: REGISTRATION_FEE_KES,
-          phoneLocal: `0${phone.slice(3)}`,
-          externalReference,
-          customerName: lookup.application.firstName,
-          callbackUrl,
-        });
-      } catch (e) {
-        await supabase.rpc("bridge_confirm_payment", {
-          _token: getBridgeToken(), _payment_id: pay.payment_id,
-          _status: "failed", _provider_reference: "", _checkout_request_id: "",
-          _result_desc: `Network error: ${(e as Error).message}`,
-        });
-        return { ok: false as const, error: "We could not reach the payment provider. Please try again." };
-      }
-      if (!result.ok) {
-        await supabase.rpc("bridge_confirm_payment", {
-          _token: getBridgeToken(), _payment_id: pay.payment_id,
-          _status: "failed", _provider_reference: "", _checkout_request_id: "",
-          _result_desc: "PayHero rejected the request.",
-        });
-        return { ok: false as const, error: "Payment request not accepted." };
-      }
-      await supabase.rpc("bridge_confirm_payment", {
-        _token: getBridgeToken(), _payment_id: pay.payment_id,
-        _status: "queued",
-        _provider_reference: (result.body["reference"] as string) ?? null,
-        _checkout_request_id: (result.body["CheckoutRequestID"] as string) ?? null,
-        _result_desc: "M-Pesa prompt sent",
-      });
-      return { ok: true as const };
-    }
 
     // ── Branch A: Direct Admin (Lovable) ──────────────────────────────────
     const app = await resolveApplicantDirect(data);

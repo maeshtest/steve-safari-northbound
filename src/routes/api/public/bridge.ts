@@ -58,7 +58,7 @@ function json(body: unknown, status = 200) {
 }
 
 function hasValidLookup(b: { reference?: string | undefined; nationalId?: string | undefined; token?: string | undefined }) {
-  return hasExactlyOneApplicantIdentifier(b.reference, b.nationalId) || Boolean(b.reference && b.token && !b.nationalId);
+  return hasExactlyOneApplicantIdentifier(b.reference, b.nationalId) || Boolean(b.reference && (b.token || b.nationalId));
 }
 
 function publicView(app: { reference: string; full_name: string; stage: string; payment_status: string; info_requested: string | null; phone: string; created_at: string }) {
@@ -175,7 +175,7 @@ export const Route = createFileRoute("/api/public/bridge")({
               return json({ ok: true, reference: app.reference, token });
             }
             case "lookup": {
-              if (!hasExactlyOneApplicantIdentifier(b.reference, b.nationalId) || b.token) return json({ ok: false, error: "Enter either a reference number or national ID." }, 400);
+              if (!hasValidLookup(b)) return json({ ok: false, error: "Enter either a reference number or national ID." }, 400);
               const ip = b.callerIp || clientIp(request.headers);
               if (!(await rateLimit(`lookup:${ip}`, 30, 600))) return json({ ok: false, error: "Too many lookups. Please wait a few minutes and try again." }, 429);
               const identifier = b.reference ?? b.nationalId ?? "";
@@ -185,6 +185,8 @@ export const Route = createFileRoute("/api/public/bridge")({
                 ? await db.from("applications").select("*").eq("reference", b.reference).maybeSingle()
                 : await db.from("applications").select("*").ilike("national_id", b.nationalId ?? "").maybeSingle();
               if (!query.data) return json({ ok: false, error: "No application matches that reference or national ID." }, 404);
+              if (b.reference && b.nationalId && query.data.national_id.toLowerCase() !== b.nationalId.toLowerCase()) return json({ ok: false, error: "No application matches that reference or national ID." }, 404);
+              if (b.token && !safeEqual(await sha256Hex(b.token), query.data.applicant_token_hash)) return json({ ok: false, error: "We could not verify this application." }, 401);
               return json({ ok: true, application: publicView(query.data) });
             }
             case "payment_progress": {
@@ -194,6 +196,7 @@ export const Route = createFileRoute("/api/public/bridge")({
                 : await db.from("applications").select("*").ilike("national_id", b.nationalId ?? "").maybeSingle();
               const app = query.data;
               if (!app) return json({ ok: false, error: "We could not verify this application." }, 404);
+              if (b.reference && b.nationalId && app.national_id.toLowerCase() !== b.nationalId.toLowerCase()) return json({ ok: false, error: "We could not verify this application." }, 404);
               if (b.token) {
                 const stored = await sha256Hex(b.token);
                 if (!safeEqual(stored, app.applicant_token_hash)) return json({ ok: false, error: "We could not verify this application." }, 401);
@@ -219,6 +222,7 @@ export const Route = createFileRoute("/api/public/bridge")({
                 : await db.from("applications").select("*").ilike("national_id", b.nationalId ?? "").maybeSingle();
               const app = query.data;
               if (!app) return json({ ok: false, error: "We could not verify this application." }, 404);
+              if (b.reference && b.nationalId && app.national_id.toLowerCase() !== b.nationalId.toLowerCase()) return json({ ok: false, error: "We could not verify this application." }, 404);
               if (b.token && !safeEqual(await sha256Hex(b.token), app.applicant_token_hash)) return json({ ok: false, error: "We could not verify this application." }, 401);
               if (app.payment_status === "paid") return json({ ok: false, error: "This registration fee has already been paid." }, 400);
               if (app.stage === "rejected" || app.stage === "withdrawn") return json({ ok: false, error: "This application is closed." }, 400);
@@ -241,7 +245,7 @@ export const Route = createFileRoute("/api/public/bridge")({
                   phoneLocal: `0${phone.slice(3)}`,
                   externalReference,
                   customerName: app.full_name.split(/\s+/)[0] ?? "Applicant",
-                  callbackUrl: "https://steve-safari-northbound.lovable.app/api/public/payhero/callback",
+                  callbackUrl: `${new URL(request.url).origin}/api/public/payhero/callback`,
                 });
               } catch {
                 await db.from("payments").update({ status: "failed", result_desc: "Could not reach PayHero" }).eq("id", payment.id);
