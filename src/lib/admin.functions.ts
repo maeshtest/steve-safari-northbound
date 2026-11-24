@@ -219,7 +219,7 @@ export const getIntegrationStatus = createServerFn({ method: "POST" })
     const payhero = pick("payhero");
     const email = pick("email");
     return {
-      payhero: { ...payhero, configured: Boolean(payhero.publicConfig["api_username"] && payhero.publicConfig["channel_id"] && payhero.hasSecret) },
+      payhero: { ...payhero, configured: Boolean(payhero.publicConfig["channel_id"] && payhero.hasSecret) },
       email: { ...email, configured: Boolean(email.publicConfig["provider"] && email.publicConfig["from_email"] && email.hasSecret) },
       defaultCallbackUrl: `${new URL(getRequest().url).origin}/api/public/payhero/callback`,
     };
@@ -230,25 +230,24 @@ export const savePayhero = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z
       .object({
-        api_username: z.string().trim().min(1).max(200),
-        api_password: z.string().max(500).optional(),
+        api_token: z.string().max(500).optional(),
         channel_id: z.string().trim().regex(/^\d+$/, "Channel ID must be a number"),
-        callback_base_url: z.string().trim().url().optional().or(z.literal("")),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     await assertRole(context, "super_admin");
     const { saveSetting, loadSetting } = await import("@/lib/server/settings.server");
-    const existing = await loadSetting<Record<string, string>, { api_password: string }>("payhero");
-    if (!data.api_password && !existing.secret) throw new Error("Enter the API password");
+    const existing = await loadSetting<Record<string, string>, { api_token: string }>("payhero");
+    if (!data.api_token && !existing?.secret?.api_token) throw new Error("Enter the API Token");
+    
     await saveSetting(
       "payhero",
-      { api_username: data.api_username, channel_id: data.channel_id, callback_base_url: data.callback_base_url || "" },
-      data.api_password ? { api_password: data.api_password } : null,
+      { channel_id: data.channel_id },
+      data.api_token ? { api_token: data.api_token } : null,
       context.userId,
     );
-    await logActivity(context, "settings.payhero_updated", "integration", "payhero", { password_changed: Boolean(data.api_password) });
+    await logActivity(context, "settings.payhero_updated", "integration", "payhero", { token_changed: Boolean(data.api_token) });
     return { ok: true };
   });
 
@@ -282,7 +281,7 @@ export const saveEmailSettings = createServerFn({ method: "POST" })
     await assertRole(context, "super_admin");
     const { saveSetting, loadSetting } = await import("@/lib/server/settings.server");
     const existing = await loadSetting<Record<string, string>, { api_key: string }>("email");
-    if (!data.api_key && !existing.secret) throw new Error("Enter the API key");
+    if (!data.api_key && !existing?.secret?.api_key) throw new Error("Enter the API key");
     await saveSetting(
       "email",
       { provider: data.provider, from_name: data.from_name, from_email: data.from_email, reply_to: data.reply_to || "" },
@@ -363,7 +362,6 @@ export const updateAdmin = createServerFn({ method: "POST" })
     const { getAdminClient } = await import("@/lib/server/admin-client.server");
     const db = await getAdminClient();
     if (data.active !== undefined) {
-      // Deactivated accounts lose every permission immediately: all role checks require an active profile.
       await db.from("profiles").update({ active: data.active }).eq("id", data.userId);
     }
     if (data.role) {
