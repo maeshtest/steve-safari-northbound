@@ -1,8 +1,8 @@
 import { getAdminClient } from "./admin-client.server";
 import { decryptJson, encryptJson } from "./crypto.server";
 
-export type PayheroPublic = { api_username?: string; channel_id?: string; callback_base_url?: string };
-export type PayheroSecret = { api_password: string };
+export type PayheroPublic = { channel_id?: string };
+export type PayheroSecret = { api_token: string };
 export type EmailProvider = "resend" | "sendgrid" | "brevo";
 export type EmailPublic = { provider?: EmailProvider; from_name?: string; from_email?: string; reply_to?: string };
 export type EmailSecret = { api_key: string };
@@ -44,12 +44,13 @@ export async function recordTest(key: "payhero" | "email", ok: boolean, message:
 
 export async function getPayheroConfig() {
   const { pub, secret } = await loadSetting<PayheroPublic, PayheroSecret>("payhero");
-  if (!pub.api_username || !pub.channel_id || !secret?.api_password) return null;
+  
+  // We only need the channel_id and the single api_token now
+  if (!pub.channel_id || !secret?.api_token) return null;
+  
   return {
-    username: pub.api_username,
-    password: secret.api_password,
+    apiToken: secret.api_token,
     channelId: pub.channel_id,
-    callbackBaseUrl: pub.callback_base_url?.replace(/\/+$/, "") || null,
   };
 }
 
