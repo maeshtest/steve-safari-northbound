@@ -47,6 +47,24 @@ export type Database = {
         }
         Relationships: []
       }
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string | null
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       application_documents: {
         Row: {
           application_id: string
@@ -709,7 +727,57 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_generate_server_key: { Args: never; Returns: string }
       admin_overview: { Args: never; Returns: Json }
+      bridge_confirm_payment: {
+        Args: {
+          _checkout_request_id: string
+          _payment_id: string
+          _provider_reference: string
+          _result_desc: string
+          _status: string
+          _token: string
+        }
+        Returns: boolean
+      }
+      bridge_get_payment_progress: {
+        Args: { _application_id: string; _token: string }
+        Returns: Json
+      }
+      bridge_initiate_payment: {
+        Args: {
+          _amount: number
+          _application_id: string
+          _external_reference: string
+          _phone: string
+          _token: string
+        }
+        Returns: Json
+      }
+      bridge_integration_setting: {
+        Args: { _key: string; _token: string }
+        Returns: Json
+      }
+      bridge_lookup_application: {
+        Args: { _national_id: string; _reference: string; _token: string }
+        Returns: Json
+      }
+      bridge_ok: { Args: { _token: string }; Returns: boolean }
+      bridge_setting: { Args: { _key: string; _token: string }; Returns: Json }
+      bridge_submit_registration: {
+        Args: {
+          _county: string
+          _email: string
+          _full_name: string
+          _national_id: string
+          _phone: string
+          _policy_version: string
+          _public_consent: boolean
+          _token: string
+          _user_agent: string
+        }
+        Returns: Json
+      }
       change_application_stage: {
         Args: {
           _application_id: string
