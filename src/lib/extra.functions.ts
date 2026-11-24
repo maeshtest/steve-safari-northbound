@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 type Ctx = { supabase: import("@supabase/supabase-js").SupabaseClient<import("@/integrations/supabase/types").Database>; userId: string };
@@ -13,38 +12,8 @@ async function assertAdmin(ctx: Ctx) {
   if (!data) throw new Error("You do not have permission to do this.");
 }
 
-// Helper to call the Lovable Bridge from Vercel
-async function fetchFromBridge(action: string, extraData: Record<string, unknown> = {}) {
-  const bridgeKey = process.env["STEVE_SAFARI_BRIDGE_KEY"];
-  const bridgeUrl = process.env["STEVE_SAFARI_BRIDGE_URL"] || "https://stevesafari.tronnlix.com/api/public/bridge";
-
-  if (!bridgeKey) return null; // Fallback to direct DB if key isn't set
-
-  try {
-    const res = await fetch(bridgeUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Bridge-Key": bridgeKey,
-      },
-      body: JSON.stringify({ action, ...extraData }),
-    });
-    if (!res.ok) throw new Error("Bridge request failed");
-    const json = await res.json();
-    return json.data;
-  } catch (err) {
-    console.error("Bridge error:", err);
-    return null;
-  }
-}
-
 // ---------- Team (public read) ----------
 export const getTeam = createServerFn({ method: "GET" }).handler(async () => {
-  // 1. Try the Bridge first (for Vercel)
-  const bridgeData = await fetchFromBridge("team");
-  if (bridgeData) return bridgeData;
-
-  // 2. Fallback to direct DB (for Lovable)
   const { getPublicClient } = await import("@/lib/server/public-client.server");
   const { data, error } = await getPublicClient()
     .from("team_members")
@@ -73,7 +42,7 @@ export const removeDemoMembers = createServerFn({ method: "POST" })
     
     // Guard: Admin client won't work on Vercel
     if (!process.env["SUPABASE_SERVICE_ROLE_KEY"] && !process.env["SUPABASE_SECRET_KEY"]) {
-      throw new Error("Admin operations must be performed on the Lovable domain, not Vercel.");
+      throw new Error("Admin operations must be performed on the primary dashboard, not Vercel.");
     }
 
     const db = await getAdminClient();
@@ -84,44 +53,21 @@ export const removeDemoMembers = createServerFn({ method: "POST" })
   });
 
 // ---------- Server bridge keys ----------
-export const listBridgeKeys = createServerFn({ method: "POST" })
+export const createBridgeKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertSuper(context);
-    const { getAdminClient } = await import("@/lib/server/admin-client.server");
-    const db = await getAdminClient();
-    const { data } = await db.from("bridge_keys").select("id, label, key_prefix, created_at, last_used_at, revoked_at").order("created_at", { ascending: false });
-    return data ?? [];
-  });
-
-export const createBridgeKey = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ label: z.string().trim().min(2).max(80) }).parse(i))
-  .handler(async ({ data, context }) => {
-    await assertSuper(context);
     
-    // Guard: Cannot generate keys on Vercel
-    if (!process.env["SUPABASE_SERVICE_ROLE_KEY"] && !process.env["SUPABASE_SECRET_KEY"]) {
-      throw new Error("Bridge keys must be generated from the Lovable dashboard, not Vercel.");
+    // On Vercel, this will fail cleanly because Vercel doesn't have the Service Role.
+    // But Lovable will generate it perfectly using this secure RPC.
+    const { data, error } = await context.supabase.rpc("admin_generate_server_key");
+    
+    if (error) {
+      if (error.message.includes("Only a Super Admin")) {
+         throw new Error("You must be a Super Admin to generate this key.");
+      }
+      throw new Error(error.message);
     }
-
-    const { randomToken, sha256Hex } = await import("@/lib/server/crypto.server");
-    const { getAdminClient } = await import("@/lib/server/admin-client.server");
-    const key = `ssb_${randomToken(32)}`;
-    const db = await getAdminClient();
-    const { error } = await db.from("bridge_keys").insert({ label: data.label, key_prefix: key.slice(0, 12), key_hash: await sha256Hex(key), created_by: context.userId });
-    if (error) throw new Error(error.message);
-    await context.supabase.rpc("log_admin_activity", { _action: "bridge.created", _target_type: "bridge_key", _target_id: key.slice(0, 12), _details: {} as never });
-    return { key };
-  });
-
-export const revokeBridgeKey = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: unknown) => z.object({ id: z.string().uuid() }).parse(i))
-  .handler(async ({ data, context }) => {
-    await assertSuper(context);
-    const { getAdminClient } = await import("@/lib/server/admin-client.server");
-    const db = await getAdminClient();
-    await db.from("bridge_keys").update({ revoked_at: new Date().toISOString() }).eq("id", data.id);
-    return { ok: true };
+    
+    return { key: data };
   });
