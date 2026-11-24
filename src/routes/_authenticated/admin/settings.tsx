@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader, RequireAdmin, fmtDate } from "@/components/admin/ui";
 import { getIntegrationStatus, saveEmailSettings, savePayhero, sendTestEmail, testPayhero } from "@/lib/admin.functions";
-import { createBridgeKey, getDemoCount, listBridgeKeys, removeDemoMembers, revokeBridgeKey } from "@/lib/extra.functions";
+import { createBridgeKey, getDemoCount, removeDemoMembers } from "@/lib/extra.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({ component: () => <RequireAdmin><Settings /></RequireAdmin> });
 
@@ -33,6 +33,8 @@ function Settings() {
   return (
     <div className="space-y-6">
       <PageHeader title="Settings" description="Email (Resend), M-Pesa payments, server bridge and sample data." />
+      
+      {/* Email Section */}
       <section className={card}>
         <h2 className="text-lg font-medium">Email — Resend {s?.email.configured && <span className="text-sm text-primary">· connected</span>}</h2>
         <div className="grid gap-3 md:grid-cols-2">
@@ -48,6 +50,7 @@ function Settings() {
         </div>
       </section>
 
+      {/* PayHero Section */}
       <section className={card}>
         <h2 className="text-lg font-medium">M-Pesa — PayHero {s?.payhero.configured && <span className="text-sm text-primary">· connected</span>}</h2>
         <div className="grid gap-3 md:grid-cols-2">
@@ -70,39 +73,43 @@ function Settings() {
 }
 
 function BridgeSection() {
-  const qc = useQueryClient();
-  const keys = useQuery({ queryKey: ["bridge-keys"], queryFn: useServerFn(listBridgeKeys) });
   const create = useServerFn(createBridgeKey);
-  const revoke = useServerFn(revokeBridgeKey);
-  const [label, setLabel] = useState("External site");
   const [newKey, setNewKey] = useState<string | null>(null);
 
   return (
     <section className={card}>
       <h2 className="text-lg font-medium">Server Bridge</h2>
       <p className="text-sm text-muted-foreground">
-        Generate a key and add it to your external environment as <code>BRIDGE_KEY</code>.
-        Your external site sends it in the <code>X-Bridge-Key</code> header to access the API — no service role key or endpoint URL needed.
+        Generate a secure token and add it to your external environment (e.g., Vercel) as <code>HL_SERVER_KEY</code>.
+        This allows your external site to process payments, send emails, and read private settings securely without exposing your database master keys.
       </p>
-      <div className="flex gap-2">
-        <Input className="w-64" value={label} onChange={(e) => setLabel(e.target.value)} />
-        <Button onClick={async () => { try { const r = await create({ data: { label } }); setNewKey(r.key); qc.invalidateQueries({ queryKey: ["bridge-keys"] }); } catch (e) { toast.error((e as Error).message); } }}>Generate key</Button>
-      </div>
+      
+      <Button 
+        onClick={async () => { 
+          try { 
+            const r = await create(); 
+            setNewKey(r.key); 
+          } catch (e) { 
+            toast.error((e as Error).message); 
+          } 
+        }}
+      >
+        Generate Server Key
+      </Button>
+
       {newKey && (
-        <div className="rounded-md border border-border bg-muted p-3 text-sm">
-          <p className="font-medium">Copy this key now — it won't be shown again:</p>
-          <code className="break-all">{newKey}</code>
-          <Button size="sm" variant="outline" className="ml-2" onClick={() => navigator.clipboard.writeText(newKey)}>Copy</Button>
+        <div className="rounded-md border border-border bg-muted p-3 text-sm mt-4">
+          <p className="font-medium text-destructive">Copy this key now — it won't be shown again:</p>
+          <code className="block break-all mt-2">{newKey}</code>
+          <Button size="sm" variant="outline" className="mt-2" onClick={() => navigator.clipboard.writeText(newKey)}>
+            Copy Key
+          </Button>
         </div>
       )}
-      <ul className="space-y-2 text-sm">
-        {keys.data?.map((k) => (
-          <li key={k.id} className="flex items-center justify-between gap-2 border-t border-border pt-2">
-            <span>{k.label} · <code>{k.key_prefix}…</code> · last used {fmtDate(k.last_used_at)} {k.revoked_at && "· revoked"}</span>
-            {!k.revoked_at && <Button size="sm" variant="ghost" onClick={async () => { await revoke({ data: { id: k.id } }); qc.invalidateQueries({ queryKey: ["bridge-keys"] }); }}>Revoke</Button>}
-          </li>
-        ))}
-      </ul>
+      
+      <div className="text-xs text-muted-foreground mt-4">
+        Note: Generating the key requires you to be on the primary Lovable dashboard. If you are on Vercel, please generate the key on your Lovable URL and paste it into Vercel's Environment Variables.
+      </div>
     </section>
   );
 }
