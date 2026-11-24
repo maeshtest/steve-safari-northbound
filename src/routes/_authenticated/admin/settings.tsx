@@ -74,13 +74,16 @@ function BridgeSection() {
   const keys = useQuery({ queryKey: ["bridge-keys"], queryFn: useServerFn(listBridgeKeys) });
   const create = useServerFn(createBridgeKey);
   const revoke = useServerFn(revokeBridgeKey);
-  const [label, setLabel] = useState("Vercel site");
+  const [label, setLabel] = useState("External site");
   const [newKey, setNewKey] = useState<string | null>(null);
-  const endpoint = typeof window !== "undefined" ? `${window.location.origin}/api/public/bridge` : "/api/public/bridge";
+
   return (
     <section className={card}>
-      <h2 className="text-lg font-medium">Server bridge (for hosting on Vercel)</h2>
-      <p className="text-sm text-muted-foreground">Generate a key and add it to your Vercel environment as <code>STEVE_SAFARI_BRIDGE_KEY</code>, with <code>STEVE_SAFARI_BRIDGE_URL</code> = <code>{endpoint}</code>. Your external site sends it in the <code>X-Bridge-Key</code> header — no service role key needed.</p>
+      <h2 className="text-lg font-medium">Server Bridge</h2>
+      <p className="text-sm text-muted-foreground">
+        Generate a key and add it to your external environment as <code>BRIDGE_KEY</code>.
+        Your external site sends it in the <code>X-Bridge-Key</code> header to access the API — no service role key or endpoint URL needed.
+      </p>
       <div className="flex gap-2">
         <Input className="w-64" value={label} onChange={(e) => setLabel(e.target.value)} />
         <Button onClick={async () => { try { const r = await create({ data: { label } }); setNewKey(r.key); qc.invalidateQueries({ queryKey: ["bridge-keys"] }); } catch (e) { toast.error((e as Error).message); } }}>Generate key</Button>
