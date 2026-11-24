@@ -26,6 +26,7 @@ async function logActivity(ctx: Ctx, action: string, targetType: string, targetI
 
 /** Idempotent: creates the initial Super Admin from the deployment secret if no Super Admin exists yet. */
 export const ensureInitialAdmin = createServerFn({ method: "POST" }).handler(async () => {
+    { const { hasServiceKey, forwardServerFn } = await import("@/lib/server/bridge.server"); if (!hasServiceKey()) return forwardServerFn("ensureInitialAdmin", undefined) as never; }
   const { getAdminClient } = await import("@/lib/server/admin-client.server");
   const db = await getAdminClient();
   const { count } = await db.from("user_roles").select("id", { count: "exact", head: true }).eq("role", "super_admin");
@@ -70,6 +71,7 @@ export const getMe = createServerFn({ method: "POST" })
 export const completePasswordChange = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    { const { hasServiceKey, forwardServerFn } = await import("@/lib/server/bridge.server"); if (!hasServiceKey()) return forwardServerFn("completePasswordChange", undefined) as never; }
     await assertRole(context, "staff");
     const { getAdminClient } = await import("@/lib/server/admin-client.server");
     const db = await getAdminClient();
@@ -201,6 +203,7 @@ export const sendEmails = createServerFn({ method: "POST" })
 export const getIntegrationStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    { const { hasServiceKey, forwardServerFn } = await import("@/lib/server/bridge.server"); if (!hasServiceKey()) return forwardServerFn("getIntegrationStatus", undefined) as never; }
     await assertRole(context, "admin");
     const { getAdminClient } = await import("@/lib/server/admin-client.server");
     const db = await getAdminClient();
@@ -236,6 +239,7 @@ export const savePayhero = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    { const { hasServiceKey, forwardServerFn } = await import("@/lib/server/bridge.server"); if (!hasServiceKey()) return forwardServerFn("savePayhero", data) as never; }
     await assertRole(context, "super_admin");
     const { saveSetting, loadSetting } = await import("@/lib/server/settings.server");
     const existing = await loadSetting<Record<string, string>, { api_token: string }>("payhero");
@@ -254,6 +258,7 @@ export const savePayhero = createServerFn({ method: "POST" })
 export const testPayhero = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    { const { hasServiceKey, forwardServerFn } = await import("@/lib/server/bridge.server"); if (!hasServiceKey()) return forwardServerFn("testPayhero", undefined) as never; }
     await assertRole(context, "admin");
     const { getPayheroConfig, recordTest } = await import("@/lib/server/settings.server");
     const { payheroTestConnection } = await import("@/lib/server/payhero.server");
@@ -278,6 +283,7 @@ export const saveEmailSettings = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    { const { hasServiceKey, forwardServerFn } = await import("@/lib/server/bridge.server"); if (!hasServiceKey()) return forwardServerFn("saveEmailSettings", data) as never; }
     await assertRole(context, "super_admin");
     const { saveSetting, loadSetting } = await import("@/lib/server/settings.server");
     const existing = await loadSetting<Record<string, string>, { api_key: string }>("email");
@@ -296,6 +302,7 @@ export const sendTestEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ to: z.string().email() }).parse(input))
   .handler(async ({ data, context }) => {
+    { const { hasServiceKey, forwardServerFn } = await import("@/lib/server/bridge.server"); if (!hasServiceKey()) return forwardServerFn("sendTestEmail", data) as never; }
     await assertRole(context, "admin");
     const { sendAndLog } = await import("@/lib/server/email.server");
     const { recordTest } = await import("@/lib/server/settings.server");
@@ -338,6 +345,7 @@ export const createAdmin = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    { const { hasServiceKey, forwardServerFn } = await import("@/lib/server/bridge.server"); if (!hasServiceKey()) return forwardServerFn("createAdmin", data) as never; }
     await assertRole(context, "super_admin");
     const { getAdminClient } = await import("@/lib/server/admin-client.server");
     const db = await getAdminClient();
@@ -355,6 +363,7 @@ export const updateAdmin = createServerFn({ method: "POST" })
     z.object({ userId: z.string().uuid(), active: z.boolean().optional(), role: roleEnum.optional() }).parse(input),
   )
   .handler(async ({ data, context }) => {
+    { const { hasServiceKey, forwardServerFn } = await import("@/lib/server/bridge.server"); if (!hasServiceKey()) return forwardServerFn("updateAdmin", data) as never; }
     await assertRole(context, "super_admin");
     if (data.userId === context.userId && (data.active === false || (data.role && data.role !== "super_admin"))) {
       throw new Error("You cannot deactivate or demote your own account.");

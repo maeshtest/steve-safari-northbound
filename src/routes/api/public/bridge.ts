@@ -48,6 +48,7 @@ const bodySchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("contact"), name: z.string().trim().min(2).max(120), email: z.string().trim().email().max(200), phone: z.string().trim().max(30).optional(), message: z.string().trim().min(5).max(3000), callerIp: z.string().max(100).optional() }),
   z.object({ action: z.literal("request_document_uploads"), reference: referenceSchema, token: z.string().min(32).max(200), files: z.array(z.object({ name: z.string().min(1).max(200), type: z.enum(ALLOWED_DOC_TYPES), size: z.number().int().positive().max(MAX_DOC_BYTES) })).min(1).max(MAX_DOCS) }),
   z.object({ action: z.literal("confirm_document_uploads"), reference: referenceSchema, token: z.string().min(32).max(200), documentIds: z.array(z.string().uuid()).max(MAX_DOCS) }),
+  z.object({ action: z.literal("server_fn"), fn: z.enum(["ensureInitialAdmin", "completePasswordChange", "getIntegrationStatus", "savePayhero", "testPayhero", "saveEmailSettings", "sendTestEmail", "createAdmin", "updateAdmin", "removeDemoMembers"]), data: z.unknown() }),
   z.object({ action: z.literal("verify_payment"), paymentId: z.string().uuid() }),
   z.object({ action: z.literal("payhero_callback"), payload: z.record(z.string(), z.unknown()) }),
   z.object({ action: z.literal("send_email"), to: z.string().email(), subject: z.string().min(2).max(200), body: z.string().min(2).max(20000), category: z.string().min(1).max(80), applicationId: z.string().uuid().nullable().optional(), sentBy: z.string().uuid().nullable().optional(), batchId: z.string().uuid().nullable().optional() }),
@@ -299,6 +300,30 @@ export const Route = createFileRoute("/api/public/bridge")({
                 else await db.from("application_documents").delete().eq("id", doc.id);
               }
               return json({ ok: true });
+            }
+            case "server_fn": {
+              // The forwarded Authorization header is re-validated by each function's own auth middleware and role checks.
+              const admin = await import("@/lib/admin.functions");
+              const extra = await import("@/lib/extra.functions");
+              const fns: Record<string, (opts: { data: never }) => Promise<unknown>> = {
+                ensureInitialAdmin: admin.ensureInitialAdmin as never,
+                completePasswordChange: admin.completePasswordChange as never,
+                getIntegrationStatus: admin.getIntegrationStatus as never,
+                savePayhero: admin.savePayhero as never,
+                testPayhero: admin.testPayhero as never,
+                saveEmailSettings: admin.saveEmailSettings as never,
+                sendTestEmail: admin.sendTestEmail as never,
+                createAdmin: admin.createAdmin as never,
+                updateAdmin: admin.updateAdmin as never,
+                removeDemoMembers: extra.removeDemoMembers as never,
+              };
+              const target = fns[b.fn];
+              if (!target) return json({ error: "Unknown action" }, 400);
+              try {
+                return json({ result: await target({ data: b.data as never }) });
+              } catch (error) {
+                return json({ error: error instanceof Error ? error.message : "Request failed" }, 400);
+              }
             }
             case "verify_payment": {
               const { verifyPayment } = await import("@/lib/server/payhero.server");

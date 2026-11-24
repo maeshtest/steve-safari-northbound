@@ -45,6 +45,7 @@ export const getDemoCount = createServerFn({ method: "POST" })
 export const removeDemoMembers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    { const { hasServiceKey, forwardServerFn } = await import("@/lib/server/bridge.server"); if (!hasServiceKey()) return forwardServerFn("removeDemoMembers", undefined) as never; }
     await assertSuper(context);
     const { getAdminClient } = await import("@/lib/server/admin-client.server");
     

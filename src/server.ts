@@ -1,5 +1,12 @@
 import "./lib/error-capture";
 
+// External hosts (e.g. Vercel) may only provide the build-time VITE_* values; mirror them for server code.
+if (typeof process !== "undefined" && process.env) {
+  process.env["SUPABASE_URL"] ||= import.meta.env["VITE_SUPABASE_URL"] as string | undefined ?? "";
+  process.env["SUPABASE_PUBLISHABLE_KEY"] ||= import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] as string | undefined ?? "";
+  process.env["SUPABASE_PROJECT_ID"] ||= import.meta.env["VITE_SUPABASE_PROJECT_ID"] as string | undefined ?? "";
+}
+
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
