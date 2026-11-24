@@ -35,6 +35,13 @@ function Contact() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
+  // Updated Fallbacks
+  const phone = c.phone || "+1 (343) 296-9450";
+  const email = c.email || "dereknash@usa.com";
+  const address = c.address || "Quebec, Canada";
+  const whatsapp = c.whatsapp || "+1 (343) 296-9450";
+  const hours = c.hours || "Monday – Friday, 9:00 AM – 5:00 PM";
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
@@ -50,11 +57,11 @@ function Contact() {
   };
 
   const items = [
-    { icon: Phone, label: "Phone", value: c.phone, href: c.phone ? `tel:${c.phone.replace(/\s/g, "")}` : undefined },
-    { icon: MessageCircle, label: "WhatsApp", value: c.whatsapp, href: c.whatsapp ? `https://wa.me/${c.whatsapp.replace(/[^\d]/g, "")}` : undefined },
-    { icon: Mail, label: "Email", value: c.email, href: c.email ? `mailto:${c.email}` : undefined },
-    { icon: MapPin, label: "Office", value: c.address },
-    { icon: Clock, label: "Hours", value: c.hours },
+    { icon: Phone, label: "Phone", value: phone, href: `tel:${phone.replace(/\s/g, "")}` },
+    { icon: MessageCircle, label: "WhatsApp", value: whatsapp, href: `https://wa.me/${whatsapp.replace(/[^\d]/g, "")}` },
+    { icon: Mail, label: "Email", value: email, href: `mailto:${email}` },
+    { icon: MapPin, label: "Office", value: address },
+    { icon: Clock, label: "Hours", value: hours },
   ].filter((i) => i.value);
 
   return (
