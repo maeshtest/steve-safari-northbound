@@ -76,7 +76,15 @@ export async function sendAndLog(args: {
   applicationId?: string | null;
   sentBy?: string | null;
   batchId?: string | null;
-}) {
+}): Promise<{ status: "sent" | "failed" | "not_configured"; error: string | null }> {
+  const { hasServiceKey, callPrimaryBridge } = await import("@/lib/server/bridge.server");
+  if (!hasServiceKey()) {
+    try {
+      return await callPrimaryBridge({ action: "send_email", ...args });
+    } catch (e) {
+      return { status: "failed", error: (e as Error).message };
+    }
+  }
   const db = await getAdminClient();
   const cfg = await getEmailConfig();
   let status: "sent" | "failed" | "not_configured" = "not_configured";
@@ -121,6 +129,14 @@ export async function sendTemplateToApplication(
   sentBy: string | null,
   category?: string,
 ) {
+  const bridge = await import("@/lib/server/bridge.server");
+  if (!bridge.hasServiceKey()) {
+    try {
+      return await bridge.callPrimaryBridge<{ status: "sent" | "failed" | "not_configured"; error: string | null }>({ action: "send_template", slug, applicationId, extra, sentBy, ...(category ? { category } : {}) });
+    } catch (e) {
+      return { status: "failed" as const, error: (e as Error).message };
+    }
+  }
   const db = await getAdminClient();
   const [{ data: tpl }, { data: app }] = await Promise.all([
     db.from("email_templates").select("*").eq("slug", slug).maybeSingle(),

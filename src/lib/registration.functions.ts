@@ -26,12 +26,6 @@ function hasServiceKey() {
   return !!(process.env["SUPABASE_SERVICE_ROLE_KEY"] || process.env["SUPABASE_SECRET_KEY"]);
 }
 
-function getBridgeToken() {
-  const token = process.env["HL_SERVER_KEY"] || process.env["STEVE_SAFARI_BRIDGE_KEY"];
-  if (!token) throw new Error("Missing server bridge key");
-  return token;
-}
-
 async function viaBridge(action: string, data: Record<string, unknown>, fallbackError: string) {
   const { callPrimaryBridge } = await import("@/lib/server/bridge.server");
   const headers = getRequest().headers;

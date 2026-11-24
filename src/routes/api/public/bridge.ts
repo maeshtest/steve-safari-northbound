@@ -48,6 +48,7 @@ const bodySchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("contact"), name: z.string().trim().min(2).max(120), email: z.string().trim().email().max(200), phone: z.string().trim().max(30).optional(), message: z.string().trim().min(5).max(3000), callerIp: z.string().max(100).optional() }),
   z.object({ action: z.literal("request_document_uploads"), reference: referenceSchema, token: z.string().min(32).max(200), files: z.array(z.object({ name: z.string().min(1).max(200), type: z.enum(ALLOWED_DOC_TYPES), size: z.number().int().positive().max(MAX_DOC_BYTES) })).min(1).max(MAX_DOCS) }),
   z.object({ action: z.literal("confirm_document_uploads"), reference: referenceSchema, token: z.string().min(32).max(200), documentIds: z.array(z.string().uuid()).max(MAX_DOCS) }),
+  z.object({ action: z.literal("verify_payment"), paymentId: z.string().uuid() }),
   z.object({ action: z.literal("payhero_callback"), payload: z.record(z.string(), z.unknown()) }),
   z.object({ action: z.literal("send_email"), to: z.string().email(), subject: z.string().min(2).max(200), body: z.string().min(2).max(20000), category: z.string().min(1).max(80), applicationId: z.string().uuid().nullable().optional(), sentBy: z.string().uuid().nullable().optional(), batchId: z.string().uuid().nullable().optional() }),
   z.object({ action: z.literal("send_template"), slug: z.string().min(1).max(80), applicationId: z.string().uuid(), extra: z.record(z.string(), z.string()), sentBy: z.string().uuid().nullable(), category: z.string().max(80).optional() }),
@@ -298,6 +299,10 @@ export const Route = createFileRoute("/api/public/bridge")({
                 else await db.from("application_documents").delete().eq("id", doc.id);
               }
               return json({ ok: true });
+            }
+            case "verify_payment": {
+              const { verifyPayment } = await import("@/lib/server/payhero.server");
+              return json(await verifyPayment(b.paymentId));
             }
             case "payhero_callback": {
               const { processPayheroCallback } = await import("@/lib/server/payhero.server");

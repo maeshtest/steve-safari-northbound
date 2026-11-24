@@ -2,7 +2,6 @@ import { REGISTRATION_FEE_KES } from "@/lib/constants";
 import { getAdminClient } from "./admin-client.server";
 import { getPayheroConfig } from "./settings.server";
 import { sendTemplateToApplication } from "./email.server";
-import { callPrimaryBridge, hasServiceKey } from "./bridge.server";
 
 const BASE = "https://backend.payhero.co.ke/api/v2";
 
@@ -65,13 +64,12 @@ export async function payheroStatus(cfg: PayheroConfig, reference: string) {
  * Asks PayHero for the authoritative status of a payment and settles it.
  */
 export async function verifyPayment(paymentId: string, hint?: { amount?: number; receipt?: string }) {
-  if (!hasServiceKey()) {
-    return callPrimaryBridge<{ status: "not_found" | "initiated" | "queued" | "success" | "failed" | "cancelled" }>({
-      action: "recheck_payment",
-      paymentId,
-      ...(hint ? { hint } : {}),
-    });
-  }
+  const bridge = await import("@/lib/server/bridge.server");
+  if (!bridge.hasServiceKey()) return bridge.callPrimaryBridge<Awaited<ReturnType<typeof verifyPaymentDirect>>>({ action: "verify_payment", paymentId });
+  return verifyPaymentDirect(paymentId, hint);
+}
+
+async function verifyPaymentDirect(paymentId: string, hint?: { amount?: number; receipt?: string }) {
   const db = await getAdminClient();
   const { data: payment } = await db.from("payments").select("*").eq("id", paymentId).maybeSingle();
   if (!payment) return { status: "not_found" as const };
