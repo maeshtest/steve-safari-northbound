@@ -4,11 +4,6 @@ import { z } from "zod";
 import { mergeContent } from "@/lib/site-content";
 
 export const getSiteContent = createServerFn({ method: "GET" }).handler(async () => {
-  const { hasServiceKey, callPrimaryBridge } = await import("@/lib/server/bridge.server");
-  if (!hasServiceKey()) {
-    const result = await callPrimaryBridge<{ data: { key: string; value: unknown }[] }>({ action: "site_content" });
-    return mergeContent(result.data ?? []);
-  }
   const { getPublicClient } = await import("@/lib/server/public-client.server");
   const { data, error } = await getPublicClient().from("site_content").select("key, value");
   if (error) throw new Error("Could not load site content");
@@ -20,11 +15,6 @@ const listSchema = z.object({ list: z.enum(["members", "sponsorship", "flight", 
 export const getDirectory = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => listSchema.parse(input))
   .handler(async ({ data }) => {
-    const { hasServiceKey, callPrimaryBridge } = await import("@/lib/server/bridge.server");
-    if (!hasServiceKey()) {
-      const result = await callPrimaryBridge<{ data: { display_name: string; county: string; listed_since: string }[] }>({ action: "directory", list: data.list });
-      return result.data ?? [];
-    }
     const { getPublicClient } = await import("@/lib/server/public-client.server");
     const { data: rows, error } = await getPublicClient().rpc("public_directory", { _list: data.list });
     if (error) throw new Error("Could not load the list");
@@ -32,11 +22,6 @@ export const getDirectory = createServerFn({ method: "GET" })
   });
 
 export const getDirectoryCounts = createServerFn({ method: "GET" }).handler(async () => {
-  const { hasServiceKey, callPrimaryBridge } = await import("@/lib/server/bridge.server");
-  if (!hasServiceKey()) {
-    const result = await callPrimaryBridge<{ data: Record<"members" | "sponsorship" | "flight" | "alumni", number> }>({ action: "directory_counts" });
-    return result.data ?? { members: 0, sponsorship: 0, flight: 0, alumni: 0 };
-  }
   const { getPublicClient } = await import("@/lib/server/public-client.server");
   const { data, error } = await getPublicClient().rpc("public_directory_counts");
   if (error) throw new Error("Could not load counts");
@@ -44,11 +29,6 @@ export const getDirectoryCounts = createServerFn({ method: "GET" }).handler(asyn
 });
 
 export const getPublishedTestimonials = createServerFn({ method: "GET" }).handler(async () => {
-  const { hasServiceKey, callPrimaryBridge } = await import("@/lib/server/bridge.server");
-  if (!hasServiceKey()) {
-    const result = await callPrimaryBridge<{ data: { id: string; name: string; location: string | null; role_title: string | null; quote: string; photo_url: string | null; featured: boolean }[] }>({ action: "testimonials" });
-    return result.data ?? [];
-  }
   const { getPublicClient } = await import("@/lib/server/public-client.server");
   const { data, error } = await getPublicClient()
     .from("testimonials")

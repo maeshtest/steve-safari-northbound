@@ -23,11 +23,11 @@ const applicantAuth = z.object({
 type ApplicantAuth = z.infer<typeof applicantAuth>;
 
 function hasServiceKey() {
-  return !!(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY);
+  return !!(process.env["SUPABASE_SERVICE_ROLE_KEY"] || process.env["SUPABASE_SECRET_KEY"]);
 }
 
 function getBridgeToken() {
-  const token = process.env.HL_SERVER_KEY || process.env.STEVE_SAFARI_BRIDGE_KEY;
+  const token = process.env["HL_SERVER_KEY"] || process.env["STEVE_SAFARI_BRIDGE_KEY"];
   if (!token) throw new Error("Missing server bridge key");
   return token;
 }
@@ -337,7 +337,7 @@ export const initiatePayment = createServerFn({ method: "POST" })
       } catch (e) {
         await supabase.rpc("bridge_confirm_payment", {
           _token: getBridgeToken(), _payment_id: pay.payment_id,
-          _status: "failed", _provider_reference: null, _checkout_request_id: null,
+          _status: "failed", _provider_reference: "", _checkout_request_id: "",
           _result_desc: `Network error: ${(e as Error).message}`,
         });
         return { ok: false as const, error: "We could not reach the payment provider. Please try again." };
@@ -345,7 +345,7 @@ export const initiatePayment = createServerFn({ method: "POST" })
       if (!result.ok) {
         await supabase.rpc("bridge_confirm_payment", {
           _token: getBridgeToken(), _payment_id: pay.payment_id,
-          _status: "failed", _provider_reference: null, _checkout_request_id: null,
+          _status: "failed", _provider_reference: "", _checkout_request_id: "",
           _result_desc: "PayHero rejected the request.",
         });
         return { ok: false as const, error: "Payment request not accepted." };
