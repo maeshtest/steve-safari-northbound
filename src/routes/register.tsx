@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { confirmDocumentUploads, requestDocumentUploads, submitRegistration } from "@/lib/registration.functions";
 import { ALLOWED_DOC_TYPES, KENYAN_COUNTIES, MAX_DOCS, MAX_DOC_BYTES, POLICY_VERSION, REGISTRATION_FEE_KES } from "@/lib/constants";
 import { normalizeKenyanPhone } from "@/lib/phone";
-import { saveApplicantToken, savePhoneHint } from "@/lib/applicant-session";
+import { saveApplicantToken, savePhoneHint, saveResumeNationalId } from "@/lib/applicant-session";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -93,6 +93,12 @@ function Register() {
         data: { ...form, county: form.county as (typeof KENYAN_COUNTIES)[number], publicConsent: consent, acceptedTerms: true, policyVersion: POLICY_VERSION },
       });
       if (!r.ok) {
+        if (r.existing) {
+          saveResumeNationalId(form.nationalId);
+          setBusy("Opening your existing application…");
+          navigate({ to: "/status" });
+          return;
+        }
         setFormError(r.error);
         setBusy(null);
         return;
@@ -126,7 +132,7 @@ function Register() {
   const field = (k: keyof Form, label: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
     <div className="space-y-2">
       <Label htmlFor={`f-${k}`}>{label}</Label>
-      <Input id={`f-${k}`} value={form[k]} onChange={set(k)} aria-invalid={Boolean(errors[k])} {...props} />
+      <Input id={`f-${k}`} value={form[k]} onChange={set(k)} aria-invalid={Boolean(errors[k])} className="h-12 border-2 bg-background" {...props} />
       {errors[k] && <p className="text-xs text-destructive">{errors[k]}</p>}
     </div>
   );
@@ -134,10 +140,10 @@ function Register() {
   return (
     <>
       <PageHero eyebrow="Registration" title="Register for the Steve Safari programme.">
-        <p>Complete the form, then pay the one-time KES {REGISTRATION_FEE_KES} registration fee by M-Pesa. It takes about five minutes.</p>
+        <p>Complete your details, then pay the one-time KES {REGISTRATION_FEE_KES} registration fee by M-Pesa. Already registered with this ID? We’ll take you back to your application.</p>
       </PageHero>
-      <section className="container-page grid gap-10 py-12 md:py-16 lg:grid-cols-[1.6fr_1fr]">
-        <form onSubmit={onSubmit} noValidate className="space-y-8 rounded-2xl border border-border bg-card p-6 shadow-soft md:p-9">
+      <section className="container-page grid gap-8 py-8 sm:py-10 xl:grid-cols-[minmax(0,1.6fr)_minmax(18rem,1fr)] xl:gap-10 xl:py-14">
+        <form onSubmit={onSubmit} noValidate className="min-w-0 space-y-7 rounded-xl border-2 border-border bg-card p-4 sm:p-6 md:p-8">
           <div>
             <p className="eyebrow text-accent">Step 1 of 2</p>
             <h2 className="mt-1 text-2xl font-medium">Your details</h2>
@@ -166,23 +172,25 @@ function Register() {
           <div>
             <Label>Supporting documents (optional)</Label>
             <p className="mt-1 text-xs text-muted-foreground">PDF, JPG or PNG · up to {MAX_DOCS} files · 10 MB each. E.g. CV, certificates, passport bio page.</p>
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="xl"
               onClick={() => fileInput.current?.click()}
-              className="mt-3 flex w-full flex-col items-center justify-center rounded-xl border border-dashed border-input bg-muted/50 px-4 py-7 text-sm text-muted-foreground transition hover:border-primary hover:bg-secondary"
+              className="mt-3 h-auto min-h-14 w-full whitespace-normal border-dashed px-4 py-4 text-sm text-foreground"
             >
-              <Upload className="mb-2 h-5 w-5 text-primary" />
-              Click to add documents
-            </button>
+              <Upload className="h-5 w-5 text-primary" />
+              Add supporting documents
+            </Button>
             <input ref={fileInput} type="file" multiple accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" className="hidden" onChange={(e) => addFiles(e.target.files)} />
             {files.length > 0 && (
               <ul className="mt-3 space-y-2">
                 {files.map((f, i) => (
                   <li key={`${f.name}-${i}`} className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm">
                     <span className="flex min-w-0 items-center gap-2"><FileText className="h-4 w-4 shrink-0 text-primary" /><span className="truncate">{f.name}</span></span>
-                    <button type="button" onClick={() => setFiles(files.filter((_, j) => j !== i))} aria-label={`Remove ${f.name}`} className="text-muted-foreground hover:text-destructive">
+                    <Button type="button" variant="ghost" size="icon" onClick={() => setFiles(files.filter((_, j) => j !== i))} aria-label={`Remove ${f.name}`} className="h-10 w-10 shrink-0 text-muted-foreground hover:text-destructive">
                       <X className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -208,20 +216,20 @@ function Register() {
 
           {formError && <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">{formError}</div>}
 
-          <Button type="submit" size="xl" className="w-full sm:w-auto" disabled={busy !== null}>
+          <Button type="submit" size="xl" className="min-h-14 w-full whitespace-normal sm:w-auto" disabled={busy !== null}>
             {busy ? <><Loader2 className="animate-spin" /> {busy}</> : "Continue to payment"}
           </Button>
         </form>
 
-        <aside className="space-y-5">
-          <div className="rounded-2xl bg-forest-gradient p-7 text-forest-foreground">
+        <aside className="min-w-0 space-y-5 xl:pt-1">
+          <div className="rounded-xl bg-forest-gradient p-5 text-forest-foreground sm:p-7">
             <ShieldCheck className="h-6 w-6 text-gold" />
             <h3 className="mt-4 text-xl font-medium">KES {REGISTRATION_FEE_KES} — and nothing more</h3>
             <p className="mt-2 text-sm leading-relaxed text-forest-foreground/80">
               This is the only fee Steve Safari charges. You pay it through the official M-Pesa prompt sent from this website — never to a personal number.
             </p>
           </div>
-          <div className="rounded-2xl border border-border bg-card p-7">
+          <div className="rounded-xl border-2 border-border bg-card p-5 sm:p-7">
             <h3 className="text-lg font-medium">What happens next</h3>
             <ol className="mt-4 space-y-3 text-sm text-muted-foreground">
               <li><strong className="text-foreground">1.</strong> You receive a reference number.</li>

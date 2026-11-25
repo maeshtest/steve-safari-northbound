@@ -3,6 +3,7 @@ import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { ALLOWED_DOC_TYPES, KENYAN_COUNTIES, MAX_DOCS, MAX_DOC_BYTES, POLICY_VERSION, REGISTRATION_FEE_KES } from "@/lib/constants";
 import { normalizeKenyanPhone } from "@/lib/phone";
+import { hasExactlyOneApplicantIdentifier } from "@/lib/applicant-identifier";
 
 const registrationSchema = z.object({
   fullName: z.string().trim().min(3, "Enter your full name").max(120).refine((v) => v.split(/\s+/).length >= 2, "Enter at least two names"),
@@ -21,6 +22,11 @@ const applicantAuth = z.object({
   nationalId: z.string().trim().optional(),
 });
 type ApplicantAuth = z.infer<typeof applicantAuth>;
+
+const statusLookupSchema = z.object({
+  reference: z.string().trim().toUpperCase().regex(/^SS-\d{2}-[A-F0-9]{6}$/).optional(),
+  nationalId: z.string().trim().regex(/^[0-9A-Za-z]{6,12}$/).optional(),
+}).refine((input) => hasExactlyOneApplicantIdentifier(input.reference, input.nationalId), "Enter either a reference number or national ID.");
 
 function hasServiceKey() {
   return !!(process.env["SUPABASE_SERVICE_ROLE_KEY"] || process.env["SUPABASE_SECRET_KEY"]);
@@ -57,8 +63,8 @@ export const submitRegistration = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     if (!hasServiceKey()) {
       const r = await viaBridge("register", { fullName: data.fullName.replace(/\s+/g, " "), nationalId: data.nationalId.toUpperCase(), phone: normalizeKenyanPhone(data.phone)!, email: data.email.toLowerCase(), county: data.county, publicConsent: data.publicConsent, acceptedTerms: true, policyVersion: data.policyVersion, userAgent: getRequest().headers.get("user-agent")?.slice(0, 300) ?? "" }, "Could not save your registration. Please try again.");
+      if (r["existing"]) return { ok: false as const, existing: true as const, error: "This national ID is already registered." };
       if (!r["ok"]) return { ok: false as const, error: String(r["error"] ?? "Could not save your registration. Please try again.") };
-      if (r["existing"]) return { ok: false as const, error: `An application already exists for this national ID (reference ${String(r["reference"])}). Use "Check status" to continue it.` };
       return { ok: true as const, reference: String(r["reference"]), token: String(r["token"]) };
     }
     const request = getRequest();
@@ -82,10 +88,7 @@ export const submitRegistration = createServerFn({ method: "POST" })
     const db = await getAdminClient();
     const { data: existing } = await db.from("applications").select("reference").ilike("national_id", data.nationalId).maybeSingle();
     if (existing) {
-      return {
-        ok: false as const,
-        error: `An application already exists for this national ID (reference ${existing.reference}). Use "Check status" to continue it.`,
-      };
+      return { ok: false as const, existing: true as const, error: "This national ID is already registered." };
     }
 
     const token = randomToken();
@@ -106,7 +109,10 @@ export const submitRegistration = createServerFn({ method: "POST" })
       .single();
 
     if (error || !app) {
-      if (error?.code === "23505") return { ok: false as const, error: "An application already exists for this national ID." };
+      if (error?.code === "23505") {
+        const { data: duplicate } = await db.from("applications").select("reference").ilike("national_id", data.nationalId).maybeSingle();
+        if (duplicate) return { ok: false as const, existing: true as const, error: "This national ID is already registered." };
+      }
       console.error("registration insert failed", error?.message);
       return { ok: false as const, error: "We could not save your registration. Please try again." };
     }
@@ -207,10 +213,10 @@ function publicView(app: {
 }
 
 export const lookupApplication = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => applicantAuth.parse(input))
+  .inputValidator((input: unknown) => statusLookupSchema.parse(input))
   .handler(async ({ data }) => {
     if (!hasServiceKey()) {
-      const r = await viaBridge("lookup", { reference: data.reference, ...(data.token ? { token: data.token } : {}), ...(data.nationalId ? { nationalId: data.nationalId } : {}) }, "Lookup failed.");
+      const r = await viaBridge("lookup", { ...(data.reference ? { reference: data.reference } : {}), ...(data.nationalId ? { nationalId: data.nationalId } : {}) }, "Lookup failed.");
       if (!r["ok"]) return { ok: false as const, error: String(r["error"] ?? "Lookup failed.") };
       return { ok: true as const, application: r["application"] as ReturnType<typeof publicView> };
     }
@@ -220,8 +226,13 @@ export const lookupApplication = createServerFn({ method: "POST" })
     if (!(await rateLimit(`lookup:${ip}`, 30, 600))) {
       return { ok: false as const, error: "Too many lookups. Please wait a few minutes and try again." };
     }
-    const app = await resolveApplicantDirect(data);
-    if (!app) return { ok: false as const, error: "No application matches that reference and national ID." };
+    const { getAdminClient } = await import("@/lib/server/admin-client.server");
+    const db = await getAdminClient();
+    const query = data.reference
+      ? await db.from("applications").select("*").eq("reference", data.reference).maybeSingle()
+      : await db.from("applications").select("*").ilike("national_id", data.nationalId ?? "").maybeSingle();
+    const app = query.data;
+    if (!app) return { ok: false as const, error: "No application matches that reference or national ID." };
     return { ok: true as const, application: publicView(app) };
   });
 

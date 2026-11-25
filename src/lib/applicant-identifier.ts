@@ -3,5 +3,5 @@ export type ApplicantIdentifier =
   | { nationalId: string; reference?: never };
 
 export function hasExactlyOneApplicantIdentifier(reference?: string, nationalId?: string): boolean {
-  return Boolean(reference) !== Boolean(nationalId);
+  return Boolean(reference?.trim()) !== Boolean(nationalId?.trim());
 }

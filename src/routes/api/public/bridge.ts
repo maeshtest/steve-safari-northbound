@@ -177,7 +177,7 @@ export const Route = createFileRoute("/api/public/bridge")({
               return json({ ok: true, reference: app.reference, token });
             }
             case "lookup": {
-              if (!hasValidLookup(b)) return json({ ok: false, error: "Enter either a reference number or national ID." }, 400);
+              if (!hasExactlyOneApplicantIdentifier(b.reference, b.nationalId)) return json({ ok: false, error: "Enter either a reference number or national ID." }, 400);
               const ip = b.callerIp || clientIp(request.headers);
               if (!(await rateLimit(`lookup:${ip}`, 30, 600))) return json({ ok: false, error: "Too many lookups. Please wait a few minutes and try again." }, 429);
               const identifier = b.reference ?? b.nationalId ?? "";

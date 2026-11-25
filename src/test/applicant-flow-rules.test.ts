@@ -8,6 +8,7 @@ describe("applicant access and approval rules", () => {
     expect(hasExactlyOneApplicantIdentifier(undefined, "12345678")).toBe(true);
     expect(hasExactlyOneApplicantIdentifier("SS-26-AB12CD", "12345678")).toBe(false);
     expect(hasExactlyOneApplicantIdentifier(undefined, undefined)).toBe(false);
+    expect(hasExactlyOneApplicantIdentifier("   ", undefined)).toBe(false);
   });
 
   it("allows approval only after the KES 500 fee is paid and the Zoom meeting is complete", () => {
