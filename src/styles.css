@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Steve Safari design system — forest green, warm gold, off-white, charcoal.
+ * Steve Safari design system - forest green, warm gold, off-white, charcoal.
  * All colors are oklch tokens; components use semantic classes only.
  */
 

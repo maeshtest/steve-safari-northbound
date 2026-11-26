@@ -10,7 +10,7 @@ import officeImg from "@/assets/about-office.jpg";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Steve Safari — Guiding Kenyans to sponsored work in Canada" },
+      { title: "About Steve Safari - Guiding Kenyans to sponsored work in Canada" },
       { name: "description", content: "Learn how Steve Safari guides Kenyan applicants through registration, review, sponsorship and travel preparation for work in Canada." },
       { property: "og:title", content: "About Steve Safari" },
       { property: "og:description", content: "A transparent path to sponsored work in Canada, with one KES 500 registration fee." },
@@ -58,7 +58,7 @@ function About() {
       </section>
       <section className="container-page py-16 md:py-20">
         <div className="rounded-2xl border border-border bg-card p-8 md:p-10">
-          <h2 className="text-2xl font-medium">What registration does — and doesn't — mean</h2>
+          <h2 className="text-2xl font-medium">What registration does and doesn't mean</h2>
           <p className="mt-3 max-w-3xl leading-relaxed text-muted-foreground">
             Registering puts your application in our review process. It does not guarantee sponsorship, a job offer, flights, a visa or acceptance into the programme. Final decisions on employment and immigration rest with employers and the relevant Canadian authorities.
           </p>

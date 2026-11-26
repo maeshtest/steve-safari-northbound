@@ -10,7 +10,7 @@ export function SiteFooter() {
   const social = data?.social;
   
   // Updated fallback details
-  const phone = contact?.phone || "+1 (343) 296-9450";
+  const phone = contact?.phone || "+13432969450";
   const email = contact?.email || "dereknash@usa.com";
   const address = contact?.address || "Quebec, Canada";
 
@@ -30,7 +30,7 @@ export function SiteFooter() {
             <span className="font-display text-xl">Steve <span className="italic">Safari</span></span>
           </div>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-forest-foreground/75">
-            Guiding Kenyan applicants towards sponsored work in Canada — transparently, one stage at a time.
+            Guiding Kenyan applicants towards sponsored work in Canada, transparently, one stage at a time.
           </p>
           {socials.length > 0 && (
             <div className="mt-5 flex gap-3">

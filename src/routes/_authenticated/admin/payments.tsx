@@ -84,7 +84,7 @@ function Payments() {
       />
       {config.data && !config.data.payhero.configured && (
         <div className="mb-6 rounded-xl border border-warning/60 bg-warning/15 p-4 text-sm">
-          PayHero credentials have not been configured — applicants cannot pay yet. <Link to="/admin/settings" className="font-semibold underline">Configure PayHero</Link>
+          PayHero credentials have not been configured, so applicants cannot pay yet. <Link to="/admin/settings" className="font-semibold underline">Configure PayHero</Link>
         </div>
       )}
       <Tabs defaultValue="txns">
@@ -132,7 +132,7 @@ function Payments() {
                       <TableCell className="text-sm">+{t.phone}</TableCell>
                       <TableCell>KES {t.amount}</TableCell>
                       <TableCell><TxnBadge status={t.status} />{t.result_desc && <p className="mt-1 max-w-48 truncate text-xs text-muted-foreground" title={t.result_desc}>{t.result_desc}</p>}</TableCell>
-                      <TableCell className="font-mono text-xs">{t.mpesa_receipt ?? "—"}</TableCell>
+                      <TableCell className="font-mono text-xs">{t.mpesa_receipt ?? "-"}</TableCell>
                       <TableCell>
                         {t.status === "queued" && (
                           <Button size="sm" variant="ghost" onClick={async () => { const r = await recheck({ data: { paymentId: t.id } }); toast.info(`PayHero status: ${r.status}`); void qc.invalidateQueries({ queryKey: ["admin"] }); }}>

@@ -1,21 +1,6 @@
 // The published Lovable site holds the database keys. The preview host (lovableproject.com) blocks outside callers.
-const DEFAULT_PRIMARY_BRIDGE_URL = "https://steve-safari-northbound.lovable.app/api/public/bridge";
-
-async function resolveBridgeUrl(): Promise<string> {
-  const override = process.env["STEVE_SAFARI_BRIDGE_URL"];
-  if (!override) return DEFAULT_PRIMARY_BRIDGE_URL;
-  try {
-    const target = new URL(override);
-    // Never call ourselves (e.g. the Vercel domain) or the access-protected preview host.
-    if (target.hostname.endsWith("lovableproject.com")) return DEFAULT_PRIMARY_BRIDGE_URL;
-    const { getRequest } = await import("@tanstack/react-start/server");
-    const ownHost = new URL(getRequest().url).hostname;
-    if (target.hostname === ownHost) return DEFAULT_PRIMARY_BRIDGE_URL;
-    return override;
-  } catch {
-    return DEFAULT_PRIMARY_BRIDGE_URL;
-  }
-}
+// Stable project preview API host. It serves the latest bridge without requiring a Lovable publish.
+const DEFAULT_PRIMARY_BRIDGE_URL = "https://project--68c9ac80-9ca4-43ae-9e15-c5b2e683e078-dev.lovable.app/api/public/bridge";
 
 export function hasServiceKey(): boolean {
   return Boolean(process.env["SUPABASE_SERVICE_ROLE_KEY"] || process.env["SUPABASE_SECRET_KEY"]);
@@ -25,8 +10,7 @@ export async function callPrimaryBridge<T>(body: Record<string, unknown>, extraH
   const key = process.env["HL_SERVER_KEY"] || process.env["STEVE_SAFARI_BRIDGE_KEY"];
   if (!key) throw new Error("The server bridge key is missing. Add HL_SERVER_KEY to the external site's server environment.");
 
-  const url = await resolveBridgeUrl();
-  const response = await fetch(url, {
+  const response = await fetch(DEFAULT_PRIMARY_BRIDGE_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Bridge-Key": key, ...extraHeaders },
     body: JSON.stringify(body),
@@ -38,6 +22,9 @@ export async function callPrimaryBridge<T>(body: Record<string, unknown>, extraH
         ? result.error
         : `The primary site could not complete the request (${response.status}).`;
     throw new Error(message);
+  }
+  if (result === null || typeof result !== "object") {
+    throw new Error("The bridge returned an invalid response.");
   }
   return result as T;
 }

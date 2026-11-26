@@ -5,9 +5,9 @@ import { REGISTRATION_FEE_KES } from "@/lib/constants";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms and Conditions — Steve Safari" },
+      { title: "Terms and Conditions: Steve Safari" },
       { name: "description", content: "The terms that apply when you use the Steve Safari website and register for the programme." },
-      { property: "og:title", content: "Terms and Conditions — Steve Safari" },
+      { property: "og:title", content: "Terms and Conditions: Steve Safari" },
       { property: "og:description", content: "KES 500 is the only registration fee. Registration does not guarantee sponsorship, flights, visas or acceptance." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },

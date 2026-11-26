@@ -70,7 +70,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Steve Safari — Sponsored work travel to Canada" },
+      { title: "Steve Safari: Sponsored work travel to Canada" },
       { name: "description", content: "Register with Steve Safari for sponsored work opportunities in Canada. One registration fee of KES 500." },
       { name: "author", content: "Steve Safari" },
       { property: "og:site_name", content: "Steve Safari" },

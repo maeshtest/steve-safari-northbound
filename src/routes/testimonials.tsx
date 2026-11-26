@@ -8,9 +8,9 @@ import { testimonialsQuery } from "@/lib/queries";
 export const Route = createFileRoute("/testimonials")({
   head: () => ({
     meta: [
-      { title: "Testimonials — Steve Safari" },
+      { title: "Testimonials: Steve Safari" },
       { name: "description", content: "Read stories from Steve Safari members on their journey towards sponsored work in Canada." },
-      { property: "og:title", content: "Member testimonials — Steve Safari" },
+      { property: "og:title", content: "Member testimonials: Steve Safari" },
       { property: "og:description", content: "Stories from Steve Safari members, shared with their consent." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

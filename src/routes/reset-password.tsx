@@ -11,9 +11,9 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Set a new password — Steve Safari" },
+      { title: "Set a new password: Steve Safari" },
       { name: "description", content: "Choose a new password for your Steve Safari staff account." },
-      { property: "og:title", content: "Set a new password — Steve Safari" },
+      { property: "og:title", content: "Set a new password: Steve Safari" },
       { property: "og:description", content: "Staff password reset." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

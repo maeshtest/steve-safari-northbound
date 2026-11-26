@@ -80,7 +80,7 @@ function ApplicationDetail() {
     setBusy("info");
     try {
       const r = await askInfo({ data: { applicationId: id, message: infoMsg } });
-      toast.success(r.emailStatus === "sent" ? "Request saved and emailed." : r.emailStatus === "not_configured" ? "Request saved. Email not sent — provider not configured." : "Request saved, but the email failed.");
+      toast.success(r.emailStatus === "sent" ? "Request saved and emailed." : r.emailStatus === "not_configured" ? "Request saved. Email not sent - provider not configured." : "Request saved, but the email failed.");
       setInfoMsg("");
       void refresh();
     } catch (e) {
@@ -114,7 +114,7 @@ function ApplicationDetail() {
               <Field label="Phone" value={`+${a.phone}`} />
               <Field label="Email" value={a.email} />
               <Field label="County" value={a.county} />
-              <Field label="Public listing consent" value={a.public_consent ? "Yes — first name & initial" : "No"} />
+              <Field label="Public listing consent" value={a.public_consent ? "Yes, first name & initial" : "No"} />
               <Field label="Terms accepted" value={`${a.terms_version} · ${fmtDate(a.terms_accepted_at)}`} />
               <Field label="Paid at" value={fmtDate(a.paid_at)} />
             </div>
@@ -207,7 +207,7 @@ function ApplicationDetail() {
                 setBusy(null);
               }}
             >
-              {a.zoom_meeting_completed_at ? "Undo — meeting not done" : "Mark Zoom meeting complete"}
+              {a.zoom_meeting_completed_at ? "Undo: meeting not done" : "Mark Zoom meeting complete"}
             </Button>
           </section>
 

@@ -60,7 +60,7 @@ export function PaymentPanel({
         setPhase("timeout");
       }
     } catch {
-      /* transient network error — keep polling */
+      /* transient network error - keep polling */
     }
   }, [credentials, onPaid, progress]);
 
@@ -130,7 +130,7 @@ export function PaymentPanel({
               <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
               <span>
                 {phase === "timeout"
-                  ? "We haven't received confirmation yet. If you completed the payment, check your status in a few minutes — otherwise try again."
+                  ? "We haven't received confirmation yet. If you completed the payment, check your status in a few minutes - otherwise try again."
                   : `Payment not completed${error ? `: ${error}` : "."} You can try again.`}
               </span>
             </div>

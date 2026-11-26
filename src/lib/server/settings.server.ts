@@ -18,9 +18,9 @@ export async function loadSetting<P, S>(key: "payhero" | "email") {
       secret = await decryptJson<S>(data.secret_ciphertext);
     } catch (e) {
       // Corrupted ciphertext or wrong SETTINGS_ENCRYPTION_KEY.
-      // Log it, but don't crash — treat as "not configured" so user can re-save.
+      // Log it, but don't crash - treat as "not configured" so user can re-save.
       console.error(
-        `[settings] Could not decrypt "${key}" secret — it may have been encrypted with a different key. Re-save from Admin → Settings.`,
+        `[settings] Could not decrypt "${key}" secret - it may have been encrypted with a different key. Re-save from Admin → Settings.`,
         (e as Error).message,
       );
       secret = null;

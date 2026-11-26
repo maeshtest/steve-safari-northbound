@@ -10,9 +10,9 @@ import canadaImg from "@/assets/canada-lake.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Steve Safari — Sponsored work travel from Kenya to Canada" },
+      { title: "Steve Safari: Sponsored work travel from Kenya to Canada" },
       { name: "description", content: "Register with Steve Safari for sponsored work opportunities in Canada. One transparent registration fee of KES 500 and online status tracking." },
-      { property: "og:title", content: "Steve Safari — Sponsored work travel to Canada" },
+      { property: "og:title", content: "Steve Safari: Sponsored work travel to Canada" },
       { property: "og:description", content: "One honest step towards sponsored work in Canada. KES 500 one-time registration fee." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -103,7 +103,7 @@ function Home() {
             <h2 className="mt-3 text-3xl font-medium leading-tight md:text-4xl">Six clear stages, from Nairobi to Canada.</h2>
             <div className="gold-rule mt-6" />
             <p className="mt-6 text-muted-foreground leading-relaxed">
-              Every applicant moves through the same transparent stages. You can see exactly where you stand at any time — no guesswork, no extra payments to move forward.
+              Every applicant moves through the same transparent stages. You can see exactly where you stand at any time. No guesswork, no extra payments to move forward.
             </p>
             <Button asChild variant="link" className="mt-4 px-0">
               <Link to="/about">How the programme works <ArrowRight /></Link>
@@ -128,7 +128,7 @@ function Home() {
             <img src={canadaImg} alt="A Canadian lakeside town at dawn" loading="lazy" width={1536} height={1024} className="aspect-[4/3] w-full rounded-2xl object-cover shadow-lift" />
             <div className="absolute -bottom-6 left-6 right-6 rounded-xl bg-card p-5 shadow-soft md:left-auto md:right-[-1.5rem] md:w-72">
               <p className="eyebrow text-accent">Our promise</p>
-              <p className="mt-2 text-sm leading-relaxed">One fee. Clear stages. Honest updates — whether the news is good or not.</p>
+              <p className="mt-2 text-sm leading-relaxed">One fee. Clear stages. Honest updates, whether the news is good or not.</p>
             </div>
           </div>
           <div className="pt-6 lg:pt-0">
@@ -165,7 +165,7 @@ function Home() {
             <Link key={l.to} to={l.to} className="group rounded-2xl border border-border bg-card p-6 shadow-soft transition hover:-translate-y-0.5 hover:border-accent">
               <Users className="h-5 w-5 text-primary" />
               <p className="mt-6 font-display text-4xl font-medium text-primary">
-                {counts ? counts[l.key as keyof typeof counts] : "—"}
+                {counts ? counts[l.key as keyof typeof counts] : "-"}
               </p>
               <p className="mt-1 flex items-center justify-between text-sm font-medium">
                 {l.label} <ArrowRight className="h-4 w-4 text-accent transition group-hover:translate-x-1" />

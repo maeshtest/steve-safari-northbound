@@ -36,10 +36,10 @@ function Contact() {
   const [done, setDone] = useState(false);
 
   // Updated Fallbacks
-  const phone = c.phone || "+1 (343) 296-9450";
+  const phone = c.phone || "+13432969450";
   const email = c.email || "dereknash@usa.com";
   const address = c.address || "Quebec, Canada";
-  const whatsapp = c.whatsapp || "+1 (343) 296-9450";
+  const whatsapp = c.whatsapp || "+13432969450";
   const hours = c.hours || "Monday – Friday, 9:00 AM – 5:00 PM";
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -67,7 +67,7 @@ function Contact() {
   return (
     <>
       <PageHero eyebrow="Contact us" title="We're here to help.">
-        <p>Questions about registration, payment or your application? Reach out — we reply within one working day.</p>
+        <p>Questions about registration, payment or your application? Reach out. We reply within one working day.</p>
       </PageHero>
       <section className="container-page grid gap-10 py-14 md:py-20 lg:grid-cols-[1fr_1.3fr]">
         <div className="space-y-4">
@@ -93,7 +93,7 @@ function Contact() {
             <div className="py-10 text-center">
               <CheckCircle2 className="mx-auto h-10 w-10 text-success" />
               <h2 className="mt-4 text-2xl font-medium">Message sent</h2>
-              <p className="mt-2 text-muted-foreground">Thank you — our team will get back to you shortly.</p>
+              <p className="mt-2 text-muted-foreground">Thank you. Our team will get back to you shortly.</p>
             </div>
           ) : (
             <form onSubmit={onSubmit} className="space-y-5">

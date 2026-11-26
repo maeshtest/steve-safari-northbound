@@ -8,9 +8,9 @@ const teamQuery = queryOptions({ queryKey: ["team"], queryFn: () => getTeam() })
 export const Route = createFileRoute("/team")({
   head: () => ({
     meta: [
-      { title: "Our Team — Steve Safari" },
+      { title: "Our Team: Steve Safari" },
       { name: "description", content: "Meet the Steve Safari team helping Kenyans prepare for sponsored work in Canada." },
-      { property: "og:title", content: "Our Team — Steve Safari" },
+      { property: "og:title", content: "Our Team: Steve Safari" },
       { property: "og:description", content: "Meet the people behind the Steve Safari programme." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

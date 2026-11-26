@@ -321,7 +321,7 @@ export const sendTestEmail = createServerFn({ method: "POST" })
     const { recordTest } = await import("@/lib/server/settings.server");
     const r = await sendAndLog({
       to: data.to,
-      subject: "Steve Safari — test email",
+      subject: "Steve Safari: test email",
       body: "This is a test email from the Steve Safari admin dashboard. If you received it, email sending is working.",
       category: "test",
       sentBy: context.userId,

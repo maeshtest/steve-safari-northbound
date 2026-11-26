@@ -41,9 +41,9 @@ function Settings() {
       
       {/* Email Section */}
       <section className={card}>
-        <h2 className="text-lg font-medium">Email — Resend {s?.email.configured && <span className="text-sm text-primary">· connected</span>}</h2>
+        <h2 className="text-lg font-medium">Email - Resend {s?.email.configured && <span className="text-sm text-primary">· connected</span>}</h2>
         <div className="grid gap-3 md:grid-cols-2">
-          <div><Label>Resend API key {s?.email.hasSecret && "(saved — leave blank to keep)"}</Label><Input type="password" placeholder="re_..." value={em.api_key} onChange={(e) => setEm({ ...em, api_key: e.target.value })} /></div>
+          <div><Label>Resend API key {s?.email.hasSecret && "(saved - leave blank to keep)"}</Label><Input type="password" placeholder="re_..." value={em.api_key} onChange={(e) => setEm({ ...em, api_key: e.target.value })} /></div>
           <div><Label>From email (verified domain)</Label><Input placeholder={s?.email.publicConfig["from_email"] ?? "support@yourdomain.com"} value={em.from_email} onChange={(e) => setEm({ ...em, from_email: e.target.value })} /></div>
           <div><Label>From name</Label><Input value={em.from_name} onChange={(e) => setEm({ ...em, from_name: e.target.value })} /></div>
           <div><Label>Reply-to (optional)</Label><Input value={em.reply_to} onChange={(e) => setEm({ ...em, reply_to: e.target.value })} /></div>
@@ -57,10 +57,10 @@ function Settings() {
 
       {/* PayHero Section */}
       <section className={card}>
-        <h2 className="text-lg font-medium">M-Pesa — PayHero {s?.payhero.configured && <span className="text-sm text-primary">· connected</span>}</h2>
+        <h2 className="text-lg font-medium">M-Pesa - PayHero {s?.payhero.configured && <span className="text-sm text-primary">· connected</span>}</h2>
         <div className="grid gap-3 md:grid-cols-2">
           <div className="md:col-span-2">
-            <Label>API Token (Basic Auth) {s?.payhero.hasSecret && "(saved — leave blank to keep)"}</Label>
+            <Label>API Token (Basic Auth) {s?.payhero.hasSecret && "(saved - leave blank to keep)"}</Label>
             <Input 
               type="password" 
               placeholder="e.g. dXNlcm5hbWU6cGFzc3dvcmQ=" 
@@ -139,8 +139,8 @@ function BridgeSection() {
     <section className={card}>
       <h2 className="text-lg font-medium">Server Bridge</h2>
       <p className="text-sm text-muted-foreground">
-        Generate a secure token and add it to your external environment (e.g., Vercel) as <code>HL_SERVER_KEY</code>.
-        This allows your external site to process payments, send emails, and read private settings securely without exposing your database master keys.
+        Generate a secure token and add only <code>HL_SERVER_KEY</code> to your Vercel environment.
+        The stable bridge address is built in, so Vercel can use the latest Lovable preview without publishing the Lovable site or setting a bridge URL.
       </p>
       
       <Button 
@@ -158,7 +158,7 @@ function BridgeSection() {
 
       {newKey && (
         <div className="rounded-md border border-border bg-muted p-3 text-sm mt-4">
-          <p className="font-medium text-destructive">Copy this key now — it won't be shown again:</p>
+          <p className="font-medium text-destructive">Copy this key now. It will not be shown again:</p>
           <code className="block break-all mt-2">{newKey}</code>
           <Button size="sm" variant="outline" className="mt-2" onClick={() => navigator.clipboard.writeText(newKey)}>
             Copy Key
@@ -167,7 +167,7 @@ function BridgeSection() {
       )}
       
       <div className="text-xs text-muted-foreground mt-4">
-        Note: Generating the key requires you to be on the primary Lovable dashboard. If you are on Vercel, please generate the key on your Lovable URL and paste it into Vercel's Environment Variables.
+        Generate the key from Lovable Admin Settings, then save it in Vercel as HL_SERVER_KEY and redeploy Vercel. No bridge URL is needed.
       </div>
     </section>
   );

@@ -181,7 +181,7 @@ function Applications() {
         onConfirm={async (stage, note, notify) => {
           const r = await change({ data: { applicationIds: selected, stage, note, notify } });
           toast.success(`Updated ${r.changed} application${r.changed === 1 ? "" : "s"}${notify ? ` · emails: ${r.emailResults["sent"] ?? 0} sent` : ""}`);
-          if (notify && (r.emailResults["not_configured"] ?? 0) > 0) toast.warning("Emails were not delivered — the email provider is not configured.");
+          if (notify && (r.emailResults["not_configured"] ?? 0) > 0) toast.warning("Emails were not delivered because the email provider is not configured.");
           setSelected([]);
           await qc.invalidateQueries({ queryKey: ["admin"] });
         }}

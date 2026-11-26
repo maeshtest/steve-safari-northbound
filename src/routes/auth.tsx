@@ -14,9 +14,9 @@ import heroImg from "@/assets/hero-savanna.jpg";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Staff sign in — Steve Safari" },
+      { title: "Staff sign in: Steve Safari" },
       { name: "description", content: "Sign in to the Steve Safari administration dashboard." },
-      { property: "og:title", content: "Staff sign in — Steve Safari" },
+      { property: "og:title", content: "Staff sign in: Steve Safari" },
       { property: "og:description", content: "Administration dashboard sign in." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

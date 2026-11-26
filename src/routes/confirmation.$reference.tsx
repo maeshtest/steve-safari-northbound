@@ -15,9 +15,9 @@ import type { MemberStage } from "@/lib/constants";
 export const Route = createFileRoute("/confirmation/$reference")({
   head: () => ({
     meta: [
-      { title: "Registration received — Steve Safari" },
+      { title: "Registration received: Steve Safari" },
       { name: "description", content: "Your Steve Safari registration has been received. Complete your KES 500 payment by M-Pesa." },
-      { property: "og:title", content: "Registration received — Steve Safari" },
+      { property: "og:title", content: "Registration received: Steve Safari" },
       { property: "og:description", content: "Complete your KES 500 registration payment by M-Pesa." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -70,7 +70,7 @@ function Confirmation() {
         <div className="rounded-2xl border border-border bg-card p-7 shadow-soft md:p-10">
           <CheckCircle2 className="h-10 w-10 text-success" />
           <h1 className="mt-4 text-3xl font-medium md:text-4xl">{view ? `Thank you, ${view.firstName}.` : "Registration received."}</h1>
-          <p className="mt-2 text-muted-foreground">Keep your reference number — you can check your status with it or your national ID. After you pay, our team will contact you to book your Zoom meeting with Steve Safari and the team, which is required before approval.</p>
+          <p className="mt-2 text-muted-foreground">Keep your reference number. You can check your status with it or your national ID. After you pay, our team will contact you to book your Zoom meeting with Steve Safari and the team, which is required before approval.</p>
           <div className="mt-6 flex flex-wrap items-center gap-3 rounded-xl bg-secondary px-5 py-4">
             <span className="eyebrow text-muted-foreground">Reference</span>
             <span className="font-display text-2xl tracking-wide text-primary">{reference}</span>
@@ -128,7 +128,7 @@ function Confirmation() {
             </>
           ) : null}
           <p className="mt-6 text-sm text-muted-foreground">
-            You can return later — go to <Link to="/status" className="font-medium text-primary underline">Check status</Link> and enter your reference and national ID.
+            You can return later. Go to <Link to="/status" className="font-medium text-primary underline">Check status</Link> and enter your reference number or national ID.
           </p>
         </div>
       </div>

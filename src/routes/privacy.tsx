@@ -4,9 +4,9 @@ import { LegalPage } from "@/components/site/LegalPage";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — Steve Safari" },
+      { title: "Privacy Policy: Steve Safari" },
       { name: "description", content: "How Steve Safari collects, uses and protects your personal information." },
-      { property: "og:title", content: "Privacy Policy — Steve Safari" },
+      { property: "og:title", content: "Privacy Policy: Steve Safari" },
       { property: "og:description", content: "Your ID number, phone, email and documents are never published." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },

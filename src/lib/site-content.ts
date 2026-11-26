@@ -17,7 +17,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     eyebrow: "Sponsored work travel · Kenya to Canada",
     headline: "Your journey to working in Canada starts with one honest step.",
     subheadline:
-      "Steve Safari connects committed Kenyan applicants with sponsored work opportunities in Canada — with clear stages, transparent records and one fixed registration fee of KES 500.",
+      "Steve Safari connects committed Kenyan applicants with sponsored work opportunities in Canada, with clear stages, transparent records and one fixed registration fee of KES 500.",
     cta_label: "Register for KES 500",
     hero_image: "",
   },

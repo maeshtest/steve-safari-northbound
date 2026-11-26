@@ -15,7 +15,7 @@ import { ROLE_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => ({ meta: [{ title: "Admin — Steve Safari" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Admin: Steve Safari" }, { name: "robots", content: "noindex" }] }),
   component: AdminLayout,
 });
 

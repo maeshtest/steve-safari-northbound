@@ -16,9 +16,9 @@ import { consumeResumeNationalId } from "@/lib/applicant-session";
 export const Route = createFileRoute("/status")({
   head: () => ({
     meta: [
-      { title: "Check application status — Steve Safari" },
+      { title: "Check application status: Steve Safari" },
       { name: "description", content: "Check your Steve Safari application using either your reference number or your national ID." },
-      { property: "og:title", content: "Check your application status — Steve Safari" },
+      { property: "og:title", content: "Check your application status: Steve Safari" },
       { property: "og:description", content: "Track your Steve Safari application at any time." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

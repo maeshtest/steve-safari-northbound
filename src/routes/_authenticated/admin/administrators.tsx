@@ -37,7 +37,7 @@ function Admins() {
         onSubmit={async (e) => {
           e.preventDefault();
           setBusy(true);
-          await run(create({ data: f }), "Account created — share the temporary password securely.");
+          await run(create({ data: f }), "Account created. Share the temporary password securely.");
           setBusy(false);
           setF({ email: "", fullName: "", role: "admin", tempPassword: "" });
         }}

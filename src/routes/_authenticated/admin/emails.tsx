@@ -112,7 +112,7 @@ function Compose() {
           ...(mode === "manual" ? { manualEmail } : {}),
         },
       });
-      if (r.not_configured > 0) toast.warning(`${r.not_configured} message(s) recorded but not delivered — email provider not configured.`);
+      if (r.not_configured > 0) toast.warning(`${r.not_configured} message(s) recorded but not delivered because the email provider is not configured.`);
       if (r.sent > 0) toast.success(`${r.sent} email(s) sent.`);
       if (r.failed > 0) toast.error(`${r.failed} email(s) failed. See history for details.`);
       void qc.invalidateQueries({ queryKey: ["admin", "email-logs"] });

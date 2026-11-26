@@ -23,7 +23,7 @@ export async function payheroTestConnection(cfg: PayheroConfig): Promise<{ ok: b
       const found = list.some((c) => String((c as { id?: unknown }).id) === String(cfg.channelId));
       return found
         ? { ok: true, message: `Connected. Channel ${cfg.channelId} found on this account.` }
-        : { ok: true, message: `Connected, but channel ${cfg.channelId} was not in the channel list — please double-check it.` };
+        : { ok: true, message: `Connected, but channel ${cfg.channelId} was not in the channel list. Please double-check it.` };
     }
     return { ok: true, message: "Connected to PayHero successfully." };
   } catch (e) {
@@ -129,7 +129,7 @@ async function settleApplication(applicationId: string, receipt: string | null) 
       note: `Registration fee verified with PayHero${receipt ? ` (receipt ${receipt})` : ""}`,
     });
   }
-  await sendTemplateToApplication("payment_confirmed", applicationId, { receipt: receipt ?? "—" }, null, "payment_confirmation");
+  await sendTemplateToApplication("payment_confirmed", applicationId, { receipt: receipt ?? "-" }, null, "payment_confirmation");
 }
 
 export async function processPayheroCallback(payload: Record<string, unknown>) {
@@ -146,7 +146,7 @@ export async function processPayheroCallback(payload: Record<string, unknown>) {
     if (payment) {
       const checkout = response["CheckoutRequestID"];
       if (payment.checkout_request_id && checkout && checkout !== payment.checkout_request_id) {
-        result = "CheckoutRequestID mismatch — ignored";
+        result = "CheckoutRequestID mismatch, ignored";
       } else {
         const amount = typeof response["Amount"] === "number" ? response["Amount"] : undefined;
         const receipt = typeof response["MpesaReceiptNumber"] === "string" ? response["MpesaReceiptNumber"] : undefined;

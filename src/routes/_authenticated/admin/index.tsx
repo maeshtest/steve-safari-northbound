@@ -71,7 +71,7 @@ function Overview() {
               <p className="text-sm text-muted-foreground">{c.label}</p>
               <c.icon className="h-4 w-4 text-accent" />
             </div>
-            <p className="mt-3 font-display text-3xl font-medium text-primary">{c.value ?? "—"}</p>
+            <p className="mt-3 font-display text-3xl font-medium text-primary">{c.value ?? "Not available"}</p>
           </div>
         ))}
       </div>

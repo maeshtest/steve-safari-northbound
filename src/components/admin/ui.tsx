@@ -57,6 +57,6 @@ export function EmptyState({ children }: { children: ReactNode }) {
 }
 
 export function fmtDate(d: string | null | undefined, withTime = true) {
-  if (!d) return "—";
+  if (!d) return "Not recorded";
   return new Date(d).toLocaleString("en-KE", withTime ? { dateStyle: "medium", timeStyle: "short" } : { dateStyle: "medium" });
 }

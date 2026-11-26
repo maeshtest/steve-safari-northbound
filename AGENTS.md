@@ -29,4 +29,4 @@ use the editor.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
 
-Server-side privileged operations use direct execution on the primary host and otherwise call its bridge with `HL_SERVER_KEY`; this keeps database and provider secrets on the primary deployment.
+Server-side privileged operations use direct execution on the primary host and otherwise call the stable project preview bridge with `HL_SERVER_KEY`; Vercel must not depend on publishing the Lovable site, and public reads prefer the bridge when that key is configured.

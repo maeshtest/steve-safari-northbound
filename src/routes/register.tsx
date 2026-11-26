@@ -18,7 +18,7 @@ import { saveApplicantToken, savePhoneHint, saveResumeNationalId } from "@/lib/a
 export const Route = createFileRoute("/register")({
   head: () => ({
     meta: [
-      { title: "Register — Steve Safari" },
+      { title: "Register: Steve Safari" },
       { name: "description", content: "Register for the Steve Safari sponsored work programme for Canada. One-time registration fee of KES 500 via M-Pesa." },
       { property: "og:title", content: "Register with Steve Safari" },
       { property: "og:description", content: "Five minutes, your national ID and an M-Pesa phone. KES 500 one-time fee." },
@@ -224,9 +224,9 @@ function Register() {
         <aside className="min-w-0 space-y-5 xl:pt-1">
           <div className="rounded-xl bg-forest-gradient p-5 text-forest-foreground sm:p-7">
             <ShieldCheck className="h-6 w-6 text-gold" />
-            <h3 className="mt-4 text-xl font-medium">KES {REGISTRATION_FEE_KES} — and nothing more</h3>
+            <h3 className="mt-4 text-xl font-medium">KES {REGISTRATION_FEE_KES}, and nothing more</h3>
             <p className="mt-2 text-sm leading-relaxed text-forest-foreground/80">
-              This is the only fee Steve Safari charges. You pay it through the official M-Pesa prompt sent from this website — never to a personal number.
+              This is the only fee Steve Safari charges. You pay it through the official M-Pesa prompt sent from this website, never to a personal number.
             </p>
           </div>
           <div className="rounded-xl border-2 border-border bg-card p-5 sm:p-7">
@@ -234,7 +234,7 @@ function Register() {
             <ol className="mt-4 space-y-3 text-sm text-muted-foreground">
               <li><strong className="text-foreground">1.</strong> You receive a reference number.</li>
               <li><strong className="text-foreground">2.</strong> You pay KES {REGISTRATION_FEE_KES} via the M-Pesa prompt.</li>
-              <li><strong className="text-foreground">3.</strong> Our team contacts you to book an online Zoom meeting with Steve Safari and the team — required before approval.</li>
+              <li><strong className="text-foreground">3.</strong> Our team contacts you to book an online Zoom meeting with Steve Safari and the team. This is required before approval.</li>
               <li><strong className="text-foreground">4.</strong> Track progress any time on the status page.</li>
             </ol>
           </div>

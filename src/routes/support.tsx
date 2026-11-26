@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/support")({
   head: () => ({
     meta: [
-      { title: "Help & Support — Steve Safari" },
+      { title: "Help & Support: Steve Safari" },
       { name: "description", content: "Answers about registration, the KES 500 fee, payment, status checks and documents." },
-      { property: "og:title", content: "Help & Support — Steve Safari" },
+      { property: "og:title", content: "Help & Support: Steve Safari" },
       { property: "og:description", content: "Get help with your Steve Safari registration." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -21,7 +21,7 @@ const FAQ = [
   ["How much does registration cost?", "Registration is a one-time fee of KES 500, paid by M-Pesa. There are no other fees charged by Steve Safari. Never pay anyone claiming to charge extra."],
   ["Does registering guarantee sponsorship or a flight?", "No. Registration does not guarantee sponsorship, flights, visas or programme acceptance. Each application is reviewed."],
   ["My M-Pesa prompt did not appear. What do I do?", "Open your confirmation page or Check status and try the payment again. If money left your account but the status shows unpaid, contact us with your M-Pesa receipt."],
-  ["How do I check my application status?", "Use the Check status page with your reference number and phone number."],
+  ["How do I check my application status?", "Use either your reference number or national ID. You do not need both."],
   ["Will my name be shown publicly?", "Only if you agreed. Public lists show your first name, last initial and county only."],
   ["Which documents should I upload?", "Your ID or passport and CV are helpful. Uploads are optional and only visible to the review team."],
 ] as const;
